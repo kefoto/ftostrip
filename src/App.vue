@@ -1,26 +1,44 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
+  <TogglesInput ></TogglesInput>
+  <GalleryPicture id="gp"></GalleryPicture>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import TogglesInput from './components/TogglesInput.vue'
+import GalleryPicture from './components/GalleryPicture';
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    TogglesInput,
+    GalleryPicture
   }
 }
 </script>
 
 <style>
+@import '@/assets/styles/fonts.css';
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'SpaceGrotesk', Helvetica;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  width: 100vw;
+  height: 100vh;
+
+  /* color: black; */
+  /* margin-top: 60px; */
 }
+
+#gp {
+  /* display: flex;
+  position: relative; */
+  width: 100%;
+  height: 100%;
+}
+
 </style>
