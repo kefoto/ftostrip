@@ -35,8 +35,10 @@ export const startDragging = (
 
 export const dragCropBox = (event, context) => {
   if (!dragging) return;
-  const clientX = event.clientX || event.touches[0].clientX;
-  const clientY = event.clientY || event.touches[0].clientY;
+//   const clientX = event.clientX || event.touches[0].clientX;
+//   const clientY = event.clientY || event.touches[0].clientY;
+    const clientX = event.clientX;
+  const clientY = event.clientY;
   const deltaX = clientX - mousePosition.x;
   const deltaY = clientY - mousePosition.y;
 
@@ -59,7 +61,7 @@ export const dragCropBox = (event, context) => {
   context.c_position.x = crop_pos.x;
   context.c_position.y = crop_pos.y;
 
-//   console.log(crop_pos);
+  console.log(crop_pos);
 };
 
 export const stopDragging = (dragCropBox, stopDragging) => {

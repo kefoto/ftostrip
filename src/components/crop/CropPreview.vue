@@ -1,8 +1,13 @@
 <template>
   <div class="container">
     <div ref="imgBox" :style="imgBoxStyles" class="img-box">
-      <div ref="cropBox" :style="cropBoxStyles" class="crop-box" @mousedown="startDragging"
-      @touchstart="startDragging">
+      <div
+        ref="cropBox"
+        :style="cropBoxStyles"
+        class="crop-box"
+        @mousedown="startDragging"
+        @touchstart="startDragging"
+      >
         <!-- <p v-if="cropSize">{{ cropSize }} {{ inputSize }}</p> -->
       </div>
     </div>
@@ -13,25 +18,27 @@
 //TODO: when the bounding box changes, the mask changes,
 // import eventBus from "../../util/eventBus";
 
-import { startDragging, dragCropBox, stopDragging} from "../../util/dragUtil.js";
+import {
+  startDragging,
+  dragCropBox,
+  stopDragging,
+} from "../../util/dragUtil.js";
 // src/util/dragElement/dragMotion.js
 export default {
   name: "CropPreview",
 
   data() {
     return {
-
-        // all of those width and height are percentage
+      // all of those width and height are percentage
       widthI: 100,
       heightI: 100,
 
       widthC: 100,
       heightC: 100,
 
-      inverted: false,
-      cropSize_updated: "1:1",
+      cropSize_num: 1,
 
-      c_position: {x: 0, y: 0},
+      c_position: { x: 0, y: 0 },
     };
   },
 
@@ -39,7 +46,7 @@ export default {
     this.calculateImageDimensions();
     this.calculateCrop();
   },
- 
+
   props: {
     inputSize: {
       type: Number,
@@ -54,9 +61,9 @@ export default {
       required: true,
     },
     scale: {
-        type: Number,
-        required: true,
-    }
+      type: Number,
+      required: true,
+    },
   },
 
   methods: {
@@ -71,7 +78,7 @@ export default {
       this.widthI = temp_w;
       this.heightI = temp_h;
 
-    //   console.log(this.inputSize);
+      //   console.log(this.inputSize);
     },
 
     d_toString(x) {
@@ -79,29 +86,33 @@ export default {
     },
 
     calculateCrop() {
-    //   let temp_h = 100,
-    //     temp_w = 100;
+      //   let temp_h = 100,
+      //     temp_w = 100;
       //   const crop_size_temp = this.cropSize.replace(":", "/");
-      const sizeArr = this.cropSize.split(":");
-      let w = sizeArr[0];
-      let h = sizeArr[1];
+      //   const sizeArr = this.cropSize.split(":");
+      //   let w = sizeArr[0];
+      //   let h = sizeArr[1];
+      let crop_temp = this.cropSize;
       let scale_percent = this.scale / 10;
 
-    //   this.inputSize, this.widthI, this.heightI,
+      //   this.inputSize, this.widthI, this.heightI,
 
       if (this.isInverted) {
-        const temp = w;
-        w = h;
-        h = temp;
+        crop_temp = 1 / crop_temp;
       }
-      
-    if (w / h > this.inputSize) { 
-        this.heightC = scale_percent * ((this.widthI / this.inputSize * h) / w) * this.inputSize;
-        this.widthC = scale_percent * this.widthI / this.inputSize;
-    } else {
-        this.widthC = scale_percent * ((this.heightI * this.inputSize * w) / h) / this.inputSize;
+
+      if (crop_temp > this.inputSize) {
+        this.heightC =
+          scale_percent *
+          (this.widthI / this.inputSize / crop_temp) *
+          this.inputSize;
+        this.widthC = (scale_percent * this.widthI) / this.inputSize;
+      } else {
+        this.widthC =
+          (scale_percent * (this.heightI * this.inputSize * crop_temp)) /
+          this.inputSize;
         this.heightC = scale_percent * this.heightI * this.inputSize;
-    }
+      }
     },
 
     // updateBoxSizes() {
@@ -125,11 +136,16 @@ export default {
     //     console.log(`Crop Box - Width: ${this.cropBoxWidth}, Height: ${this.cropBoxHeight}`);
     // },
 
-
     startDragging(event) {
-        const imgBox = this.$refs.imgBox.getBoundingClientRect();
-        const cropBox = this.$refs.cropBox.getBoundingClientRect();
-      startDragging(event, imgBox, cropBox, this.dragCropBox, this.stopDragging);
+      const imgBox = this.$refs.imgBox.getBoundingClientRect();
+      const cropBox = this.$refs.cropBox.getBoundingClientRect();
+      startDragging(
+        event,
+        imgBox,
+        cropBox,
+        this.dragCropBox,
+        this.stopDragging
+      );
     },
 
     dragCropBox(event) {
@@ -142,14 +158,13 @@ export default {
   },
   watch: {
     inputSize() {
-        // console.log(this.inputSize);
+      // console.log(this.inputSize);
       this.calculateImageDimensions();
       this.calculateCrop();
     },
 
     cropSize() {
       this.calculateCrop();
-      
     },
 
     isInverted() {
@@ -157,8 +172,8 @@ export default {
     },
 
     scale() {
-        this.calculateCrop();
-    }
+      this.calculateCrop();
+    },
 
     // Add more watchers as needed for other properties
   },
@@ -182,16 +197,15 @@ export default {
     },
   },
 
-//   mounted() {
-//     this.calculateImageDimensions(); 
-//     this.updateBoxSizes();
-//     window.addEventListener('resize', this.updateBoxSizes);
-//   },
-//   beforeUnmount() {
-//     window.removeEventListener('resize', this.updateBoxSizes);
-//   },
+  //   mounted() {
+  //     this.calculateImageDimensions();
+  //     this.updateBoxSizes();
+  //     window.addEventListener('resize', this.updateBoxSizes);
+  //   },
+  //   beforeUnmount() {
+  //     window.removeEventListener('resize', this.updateBoxSizes);
+  //   },
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -216,8 +230,8 @@ export default {
       border: 0.5px solid white;
       background-color: red;
       opacity: 0.7;
-    //   left: 0;
-    //   top: 0;
+      //   left: 0;
+      //   top: 0;
       transition: all 0.2s ease;
       // transform: ;
       //   width: 50%;

@@ -54,7 +54,7 @@
             </div>
           </div>
           <CropPreview
-            :cropSize="selectedWord"
+            :cropSize="processedWord"
             :inputSize="input_aspec"
             :isInverted="inverted"
             :scale="crop_boost"
@@ -123,7 +123,7 @@ export default {
   data() {
     return {
       selectedWord: "",
-      words: ["1:1", "2:3", "3:4", "4:5"],
+      words: ["original", "1:1", "2:3", "3:4", "4:5"],
       imageSource: null,
       fileName: "Input Image",
       duplicates: 4,
@@ -143,6 +143,21 @@ export default {
 
   mounted() {
     
+  },
+
+  computed: {
+    // Process the selectedWord here
+    processedWord() {
+      if(this.selectedWord == 'original'){
+        return this.input_aspec;
+      } else {
+        const sizeArr = this.selectedWord.split(":");
+        let w = sizeArr[0];
+        let h = sizeArr[1];
+
+        return w / h;
+      }
+    }
   },
 
   methods: {
@@ -227,6 +242,8 @@ export default {
 
   margin: 0 10px;
   padding: 5px;
+
+  z-index: 1;
 
   > div {
     //   // transform: scale(0.9);

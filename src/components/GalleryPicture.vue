@@ -1,22 +1,22 @@
 <template>
   <div class="image-container">
-    <div class="mask"></div>
+    <!-- <div id="mask"></div> -->
     <img :src="imageSource" alt="Current image" />
   </div>
 </template>
 
 <script>
-import eventBus from '../util/eventBus';
+import eventBus from "../util/eventBus";
 // import {imageSource} from "./TogglesInput.vue"
 export default {
   name: "GalleryPicture",
 
   created() {
-    eventBus.on('imageUploaded', this.updateImageSource);
+    eventBus.on("imageUploaded", this.updateImageSource);
   },
 
   beforeUnmount() {
-    eventBus.off('imageUploaded', this.updateImageSource);
+    eventBus.off("imageUploaded", this.updateImageSource);
   },
 
   props: {
@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       imageSource: this.initialImageSource,
-    //   updateImageSource
+      //   updateImageSource
     };
   },
 
@@ -38,6 +38,15 @@ export default {
       this.imageSource = newSource;
     },
   },
+
+  computed: {
+    clipping() {
+      return {
+        'clip-path': `rect({}px {}px {}px {}px)`
+      }
+    }
+  },
+
 };
 </script>
 
@@ -50,8 +59,25 @@ export default {
   height: 100%;
   padding: 10px;
   // background-color: red;
-  
+
   transition: all 0.3s ease;
+}
+
+#mask {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  border: 1px solid #646464;
+  // background-color: black;
+  user-select: none;
+
+  z-index: 1;
+  width: 60%;
+  height: 20%;
+  max-width: 600px;
+  // object-fit: cover;
 }
 
 img {
@@ -62,7 +88,12 @@ img {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  z-index: 0;
+  // object-fit: cover;
   user-select: none;
+
+  // TODO: use clippath
   //   border: 1px solid #ccc;
   //   border-radius: 4px;
 }
