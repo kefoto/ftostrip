@@ -1,5 +1,6 @@
 <template>
   <div class="image-container">
+    <div class="mask"></div>
     <img :src="imageSource" alt="Current image" />
   </div>
 </template>
@@ -11,10 +12,6 @@ export default {
   name: "GalleryPicture",
 
   created() {
-    this.imageUploadedHandler = (imgData) => {
-      this.imageSrc = imgData;
-    };
-    
     eventBus.on('imageUploaded', this.updateImageSource);
   },
 
@@ -52,20 +49,20 @@ export default {
   width: 100%;
   height: 100%;
   padding: 10px;
-//   background-color: red;
+  // background-color: red;
   
   transition: all 0.3s ease;
 }
 
 img {
-  width: 40%;
-  max-width: 520px;
+  width: 60%;
+  max-width: 600px;
   height: auto;
   position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
+  user-select: none;
   //   border: 1px solid #ccc;
   //   border-radius: 4px;
 }

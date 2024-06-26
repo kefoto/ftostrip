@@ -26,33 +26,38 @@
                   v-for="word in words"
                   :key="word"
                   :value="word"
-                  :selected="index === 0"
                 >
-                <!-- TODO: this index is a issue -->
+                  <!-- TODO: this index is a issue -->
                   {{ word }}
                 </option>
               </select>
             </div>
             <div class="small-input">
               <label for="invert_rotate">Invert</label>
-              <input type="checkbox" name="invert_rotate" id="invert_rotate" />
+              <input
+                type="checkbox"
+                name="invert_rotate"
+                id="invert_rotate"
+                v-model="inverted"
+              />
             </div>
             <div class="small-input">
               <label for="crop-boost">Crop Size</label>
               <input
                 id="crop-boost"
                 type="range"
-                min="1"
+                min="3"
                 max="10"
-                value="1"
-                v-model="crop_size"
+                value="10"
+                v-model="crop_boost"
               />
             </div>
-            
           </div>
           <CropPreview
             :cropSize="selectedWord"
             :inputSize="input_aspec"
+            :isInverted="inverted"
+            :scale="crop_boost"
             id="cPreview"
           ></CropPreview>
         </div>
@@ -125,13 +130,19 @@ export default {
       xAxis: 2,
       yAxis: 2,
       input_aspec: 1,
-      crop_size: 5,
+      crop_boost: 10,
+      inverted: false,
     };
   },
 
   created() {
     // Set the default selected word to the first element in the words array
     this.selectedWord = this.words[0];
+    this.emitImage(require('@/assets/1.png'));
+  },
+
+  mounted() {
+    
   },
 
   methods: {
@@ -144,27 +155,23 @@ export default {
       // this.$refs.form.reset();
       const file = event.target.files[0];
       if (file) {
-        this.fileName = file.name;
+        this.fileName = this.limitNameLength(file.name, 10);
         this.file = file;
 
         if (file.type.startsWith("image/")) {
           // console.log('FileReader onload event triggered');
           const reader = new FileReader();
           reader.onload = (e) => {
-            const imageSource = e.target.result;
-
-            var img = new Image();
-            img.src = reader.result;
-            img.onload = () => {
-              this.input_aspec = img.width / img.height;
-            };
-            eventBus.emit("imageUploaded", imageSource);
-            this.imageSource = imageSource;
-            // TODO: bug the file reader does not read the first file here is not the problem
+            this.imageSource = e.target.result;
             this.$nextTick(() => {
+              // console.log(reader.result);
               // console.log('Image source updated:', this.imageSource);
             });
-          };
+
+            this.emitImage(reader.result);
+          }
+          
+
           reader.readAsDataURL(file);
         } else {
           // this.imageSource = "";
@@ -176,7 +183,34 @@ export default {
         // console.log(file);
       }
     },
+
+    emitImage(source) {
+      var img = new Image();
+      img.src = source;
+      img.onload = () => {
+        this.input_aspec = img.width / img.height;
+          // eventBus.emit("imageSize", img.width / img.height);
+        };
+
+      eventBus.emit("imageUploaded", this.imageSource);
+    },
+
+    limitNameLength(name, limit) {
+      if(name.length > limit){
+        var truncatedName = name.slice(0, limit); // Get the first 'limit' characters
+        return truncatedName + '...';
+      }
+      return name;
+    }
   },
+
+  // computed: {
+  //   cPreviewStyles(){
+  //     return {
+  //       width:
+  //     }
+  //   }
+  // }
 };
 </script>
 
@@ -212,7 +246,7 @@ export default {
   width: 100%;
   padding: 3px 0;
   // margin-bottom: 0;
-  
+
   .normal-input {
     position: relative;
     display: flex;
@@ -235,7 +269,7 @@ export default {
       width: 25%;
       text-align: center;
       display: inherit;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
 
       align-items: center;
     }
@@ -303,28 +337,30 @@ export default {
 }
 
 #for_crop_img {
-    width: 100%;
-    height: 7rem;
-    display:flex;
-    align-content: space-between;
-    // position: ;
-    .sub_section {
-      // background-color: red;
-      // margin-top:auto;
-      // font-size: 0.5rem;
-      height: 100%;
-      width: 65%;
-      margin-right: auto;
-    }
-
-    #cPreview {
-      width: 32%;
-      height: 100%;
-      margin-left: auto;
-    }
-    
-    margin-bottom: 10px;
+  width: 100%;
+  height: 110px;
+  display: flex;
+  align-content: space-between;
+  // position: ;
+  .sub_section {
+    // background-color: red;
+    // margin-top:auto;
+    // font-size: 0.5rem;
+    height: 100%;
+    width: 65%;
+    margin-right: auto;
   }
+
+  #cPreview {
+    width: 110px;
+    height: 110px;
+    // margin-left: auto;
+    // margin-bottom: auto;
+    margin: auto 0;
+  }
+
+  margin-bottom: 10px;
+}
 // CropPreview {
 //   position: relative;
 //   display: flex;
@@ -332,95 +368,97 @@ export default {
 //   // background-color: red;
 // }
 .small-input {
-    // background-color: red;
-    position: relative;
-    display: flex;
-    // margin-left: 5px;
-    width: 100%;
-    height: 0.9rem;
-    font-size: 1rem;
-    justify-content: space-between;
+  // background-color:
+  position: relative;
+  display: flex;
+  // margin-left: 5px;
+  width: 100%;
+  height: 0.9rem;
+  font-size: 1rem;
+  justify-content: space-between;
 
-    margin-bottom: 5px;
-    padding-right: 5px;
+  margin-bottom: 5px;
+  padding-right: 5px;
 
-    .img-drop {
-      height: 1.4rem !important;
-    }
-
-    &:last-of-type {
-      margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
-    }
-
-    > label {
-      width: 60%;
-      text-align: center;
-      display: inherit;
-      font-size: 0.8rem;
-
-      align-items: center;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    input {
-      position: relative;
-      width: 40%;
-      display: flex;
-      align-items: right;
-      // padding-right: 10px;
-      margin-left: auto;
-      // margin: 0 auto;
-    }
-
-    select {
-      position: relative;
-      width: 40%;
-      //   right:0;
-      display: flex;
-      align-items: center;
-      // margin-left: auto;
-      margin-left: auto;
-    }
-
-    .display-input {
-      background-color: #f9f6f6;
-      width: 30%;
-      margin-left: 0.5%;
-      // margin: 0 10px;
-      text-align: right;
-      font-size: 0.8rem;
-      border-radius: 2px;
-    }
-
-    .img-drop-button {
-      position: relative;
-
-      width: auto;
-      height: 100%;
-      border: 0.7px solid black;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-
-      &:hover {
-        // transform: invert(100%);
-        background-color: black;
-
-        img {
-          filter: invert(1);
-        }
-      }
-      img {
-        // transform: scale(0.9);
-        position: relative;
-        height: 100%;
-        width: auto;
-        padding: 10%;
-        transition: all 0.3s ease;
-      }
-    }
+  .img-drop {
+    height: 1.4rem !important;
   }
 
+  &:last-of-type {
+    margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
+  }
+
+  > label {
+    width: 60%;
+    text-align: center;
+    display: inherit;
+    font-size: 0.8rem;
+
+    align-items: center;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  input {
+    position: relative;
+    width: 40%;
+    display: flex;
+    align-items: right;
+    // padding-right: 10px;
+    // margin-right: auto;
+    margin: auto;
+    // margin: 0 auto;
+  }
+
+  select {
+    position: relative;
+    width: 40%;
+    //   right:0;
+    font-size: 0.65rem;
+    display: flex;
+    // text-align: center;
+    align-items: center;
+    // margin-left: auto;
+    margin: auto 0;
+  }
+
+  .display-input {
+    background-color: #f9f6f6;
+    width: 30%;
+    margin-left: 0.5%;
+    // margin: 0 10px;
+    text-align: right;
+    font-size: 0.8rem;
+    border-radius: 2px;
+  }
+
+  .img-drop-button {
+    position: relative;
+
+    width: auto;
+    height: 100%;
+    border: 0.7px solid black;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      // transform: invert(100%);
+      background-color: black;
+
+      img {
+        filter: invert(1);
+      }
+    }
+    img {
+      // transform: scale(0.9);
+      position: relative;
+      height: 100%;
+      width: auto;
+      padding: 10%;
+      transition: all 0.3s ease;
+    }
+  }
+}
 </style>
