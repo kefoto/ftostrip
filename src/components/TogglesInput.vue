@@ -202,7 +202,7 @@ export default {
       img.src = source;
       img.onload = () => {
         this.input_aspec = img.width / img.height;
-        console.log('reading file')
+        // console.log('reading file')
           // eventBus.emit("imageSize", img.width / img.height);
         };
 

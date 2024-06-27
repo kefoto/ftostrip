@@ -44,10 +44,10 @@ export default {
       mask_pos: {x: 0 , y: 0},
       mask_dem: {w: 100 , h: 100},
       temp_dem: {
-        a: null,
-        b: null,
-        c: null,
-        d: null,
+        a: 10,
+        b: 10,
+        c: 10,
+        d: 10,
       },
       //   updateImageSource
     };
@@ -56,19 +56,12 @@ export default {
   watch: {
     isImageLoad() {
       if(this.isImageLoad){
-        console.log("image loaded");
-        this.updateMask_C_Size();
-        this.updateMaskDem(this.temp_dem.a, this.temp_dem.b, this.temp_dem.c, this.temp_dem.d);
-        this.isImageLoad = false;
+        console.log("image loaded")
+        updateMask_C_Size()
+        updateMaskDem(temp_dem.a, temp_dem.b, temp_dem.c, temp_dem.d)
+        this.isImageLoad = false
       }
     },
-
-    temp_dem() {
-      console.log("main image mask update");
-      if(this.temp_dem.a !== null && this.temp_dem !== null && this.temp_dem.c !== null && this.temp_dem.d !== null){
-        this.updateMaskDem(this.temp_dem.a, this.temp_dem.b, this.temp_dem.c, this.temp_dem.d);
-      }
-    }
   },
 
   methods: {
@@ -137,12 +130,7 @@ export default {
     this.updateImageSource(this.imageSource);
     eventBus.on("imageUploaded", this.updateImageSource);
     eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.on("cropInfoUploaded", (dem) => {
-      this.temp_dem.a = dem.a;
-      this.temp_dem.b = dem.b;
-      this.temp_dem.c = dem.c;
-      this.temp_dem.d = dem.d;
-    });
+    eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
     // this.updateImageSource(this.imageSource);
     window.addEventListener('resize', this.updateMask_C_Size);
   },
@@ -170,7 +158,7 @@ export default {
   transform: translate(-50%, -50%);
 
   // border: 1px solid #646464;
-  background-color: gray;
+  background-color: red;
   opacity: 0.5;
   user-select: none;
 
@@ -183,7 +171,7 @@ export default {
 
   .mask{
     position: relative;
-    background-color: red;
+    // background-color: red;
     opacity: 0.4;
 
     transition: all 1s ease;

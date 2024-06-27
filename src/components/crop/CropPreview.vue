@@ -80,7 +80,7 @@ export default {
       this.heightI = temp_h;
 
       //   console.log(this.inputSize);
-      console.log('calculate input dimension')
+      // console.log('calculate input dimension')
     },
 
     d_toString(x) {
@@ -113,7 +113,7 @@ export default {
       }
 
 
-      console.log('calculate crop dimension')
+      // console.log('calculate crop dimension')
     },
 
     update() {
@@ -130,7 +130,7 @@ export default {
         // console.log(this.widthC,
         //     this.heightC, imgBox.clientWidth, imgBox.clientHeight);
         eventBus.emit("cropInfoUploaded", {a: this.widthC, b: this.heightC, c:imgBox.clientWidth, d:imgBox.clientHeight});
-        console.log('emit preview dim information')
+        // console.log('emit preview dim information')
             // /
     },
 
