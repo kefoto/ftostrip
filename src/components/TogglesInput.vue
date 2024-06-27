@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="menu">
-      <div id="dropfile" class="container">
+      <div id="about_img" class="container">
         <div class="normal-input">
           <input
             id="image-drop"
@@ -22,11 +22,7 @@
             <div class="small-input">
               <label for="ratio">Aspect Ratio</label>
               <select id="ratio" v-model="selectedWord">
-                <option
-                  v-for="word in words"
-                  :key="word"
-                  :value="word"
-                >
+                <option v-for="word in words" :key="word" :value="word">
                   <!-- TODO: this index is a issue -->
                   {{ word }}
                 </option>
@@ -61,50 +57,63 @@
             id="cPreview"
           ></CropPreview>
         </div>
-        <div id="basic" class="container">
-          <div class="normal-input">
-            <label for="divisions">dupliates</label>
-            <input
-              id="divisions"
-              type="range"
-              min="2"
-              max="8"
-              value="2"
-              v-model="duplicates"
-            />
-            <span class="display-input">{{ duplicates }}</span>
-          </div>
-
-          <div class="normal-input">
-            <label for="x-axis">x axis</label>
-            <input
-              id="x-axis"
-              type="range"
-              min="2"
-              max="32"
-              value="2"
-              v-model="xAxis"
-            />
-            <span class="display-input">{{ xAxis }}</span>
-          </div>
-
-          <div class="normal-input">
-            <label for="y-axis">y axis</label>
-            <input
-              id="y-axis"
-              type="range"
-              min="2"
-              max="32"
-              value="2"
-              v-model="yAxis"
-            />
-            <span class="display-input">{{ yAxis }}</span>
-          </div>
-
-          <!-- size, how many divisions in picture, x-how many line, y-how many line, -->
-        </div>
-        <div id="output" class="container"></div>
       </div>
+      <div id="basic" class="container">
+        <p> dupliate</p>
+        <div class="normal-input">
+          <label for="divisions">x</label>
+          <input
+            id="divisions"
+            type="range"
+            min="1"
+            max="8"
+            value="2"
+            v-model="dupX"
+          />
+          <span class="display-input">{{ dupX }}</span>
+        </div>
+        <div class="normal-input">
+          <label for="divisions">y</label>
+          <input
+            id="divisions"
+            type="range"
+            min="1"
+            max="8"
+            value="2"
+            v-model="dupY"
+          />
+          <span class="display-input">{{ dupY }}</span>
+        </div>
+        <p>split</p>
+        <div class="normal-input">
+          <label for="x-axis">x</label>
+          <input
+            id="x-axis"
+            type="range"
+            min="2"
+            max="32"
+            value="2"
+            v-model="splitX"
+          />
+          <span class="display-input">{{ splitX }}</span>
+        </div>
+
+        <div class="normal-input">
+          <label for="y-axis">y</label>
+          <input
+            id="y-axis"
+            type="range"
+            min="2"
+            max="32"
+            value="2"
+            v-model="splitY"
+          />
+          <span class="display-input">{{ splitY }}</span>
+        </div>
+
+        <!-- size, how many divisions in picture, x-how many line, y-how many line, -->
+      </div>
+      <div id="output" class="container"></div>
     </div>
   </div>
 </template>
@@ -126,9 +135,10 @@ export default {
       words: ["original", "1:1", "2:3", "3:4", "4:5"],
       imageSource: null,
       fileName: "Input Image",
-      duplicates: 4,
-      xAxis: 2,
-      yAxis: 2,
+      dupX: 4,
+      dupY: 4,
+      splitX: 2,
+      splitY: 2,
       input_aspec: 1,
       crop_boost: 10,
       inverted: false,
@@ -138,17 +148,15 @@ export default {
   created() {
     // Set the default selected word to the first element in the words array
     this.selectedWord = this.words[0];
-    this.emitImage(require('@/assets/1.png'));
+    this.emitImage(require("@/assets/1.png"));
   },
 
-  mounted() {
-    
-  },
+  mounted() {},
 
   computed: {
     // Process the selectedWord here
     processedWord() {
-      if(this.selectedWord == 'original'){
+      if (this.selectedWord == "original") {
         return this.input_aspec;
       } else {
         const sizeArr = this.selectedWord.split(":");
@@ -157,7 +165,7 @@ export default {
 
         return (w / h).toFixed(2);
       }
-    }
+    },
   },
 
   methods: {
@@ -187,8 +195,7 @@ export default {
             });
 
             this.emitImage(reader.result);
-          }
-          
+          };
 
           reader.readAsDataURL(file);
         } else {
@@ -207,19 +214,19 @@ export default {
       img.src = source;
       img.onload = () => {
         this.input_aspec = (img.width / img.height).toFixed(2);
-          // eventBus.emit("imageSize", img.width / img.height);
-        };
+        // eventBus.emit("imageSize", img.width / img.height);
+      };
 
       eventBus.emit("imageUploaded", this.imageSource);
     },
 
     limitNameLength(name, limit) {
-      if(name.length > limit){
+      if (name.length > limit) {
         var truncatedName = name.slice(0, limit); // Get the first 'limit' characters
-        return truncatedName + '...';
+        return truncatedName + "...";
       }
       return name;
-    }
+    },
   },
 
   // computed: {
@@ -243,10 +250,10 @@ export default {
   border: 1px solid #f9f6f6;
   border-radius: 13px;
 
-  margin: 0 10px;
+  margin: 10px;
   padding: 5px;
 
-  z-index: 1;
+  z-index: 20;
 
   > div {
     //   // transform: scale(0.9);
@@ -264,7 +271,7 @@ export default {
   position: relative;
   // height: auto;
   width: 100%;
-  padding: 3px 0;
+  
   // margin-bottom: 0;
 
   .normal-input {
@@ -274,12 +281,10 @@ export default {
     width: 100%;
     height: 1.1rem;
     justify-content: space-between;
-
+    align-items: center;
     margin-bottom: 5px;
-
-    .img-drop {
-      height: 1.4rem !important;
-    }
+    padding: 0 5px;
+    // background-color: red;
 
     &:last-of-type {
       margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
@@ -292,6 +297,7 @@ export default {
       font-size: 0.9rem;
       user-select: none;
       align-items: center;
+      padding-left: 5%;
     }
 
     input[type="file"] {
@@ -315,8 +321,6 @@ export default {
       align-items: center;
       // margin-left: auto;
       margin-left: auto;
-
-      
     }
 
     .display-input {
@@ -375,10 +379,11 @@ export default {
   }
 
   #cPreview {
-    width: 110px;
-    height: 110px;
+    width: 120px;
+    height: 120px;
     // margin-left: auto;
     // margin-bottom: auto;
+    // background-color: red;
     margin: auto 0;
   }
 
@@ -484,6 +489,9 @@ export default {
       transition: all 0.3s ease;
     }
   }
-
 }
+
+// #about_img{
+//   background-color: red;
+// }
 </style>

@@ -209,6 +209,7 @@ export default {
 
 <style lang="scss" scoped>
 .container {
+  z-index: 20;
   position: inherit;
   display: flex;
   width: 100%;

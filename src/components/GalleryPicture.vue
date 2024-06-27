@@ -149,8 +149,8 @@ export default {
   transform: translate(-50%, -50%);
 
   // border: 1px solid #646464;
-  background-color: grey;
-  opacity: 0.5;
+  // background-color: grey;
+  // opacity: 0.5;
   user-select: none;
 
   z-index: 1;
@@ -162,7 +162,7 @@ export default {
 
   .mask{
     position: relative;
-    background-color: red;
+    background-color: rgb(232, 15, 15);
     opacity: 0.4;
 
     transition: all 1s ease;
