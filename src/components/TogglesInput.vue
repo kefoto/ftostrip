@@ -49,7 +49,7 @@
                 min="3"
                 max="10"
                 value="10"
-                v-model.number="crop_boost"
+                v-model="crop_boost"
               />
             </div>
           </div>
@@ -178,7 +178,11 @@ export default {
           const reader = new FileReader();
           reader.onload = (e) => {
             this.imageSource = e.target.result;
-    
+            this.$nextTick(() => {
+              // console.log(reader.result);
+              // console.log('Image source updated:', this.imageSource);
+            });
+
             this.emitImage(reader.result);
           }
           

@@ -25,7 +25,7 @@ export const startDragging = (
   cropBox_rect.w = cropBox.width;
   cropBox_rect.h = cropBox.height;
 
-  //   console.log(cropBox_rect, imgBox_rect);
+//   console.log(cropBox_rect, imgBox_rect);
 
   document.addEventListener("mousemove", dragCropBox);
   document.addEventListener("touchmove", dragCropBox);
@@ -35,9 +35,9 @@ export const startDragging = (
 
 export const dragCropBox = (event, context) => {
   if (!dragging) return;
-  //   const clientX = event.clientX || event.touches[0].clientX;
-  //   const clientY = event.clientY || event.touches[0].clientY;
-  const clientX = event.clientX;
+//   const clientX = event.clientX || event.touches[0].clientX;
+//   const clientY = event.clientY || event.touches[0].clientY;
+    const clientX = event.clientX;
   const clientY = event.clientY;
   const deltaX = clientX - mousePosition.x;
   const deltaY = clientY - mousePosition.y;
@@ -46,7 +46,14 @@ export const dragCropBox = (event, context) => {
   crop_pos.y += deltaY;
 
   // Constrain the crop box within the image box
-  checkBorder(crop_pos);
+  crop_pos.x = Math.max(
+    0,
+    Math.min(crop_pos.x, imgBox_rect.w - cropBox_rect.w)
+  );
+  crop_pos.y = Math.max(
+    0,
+    Math.min(crop_pos.y, imgBox_rect.h - cropBox_rect.h)
+  );
 
   mousePosition.x = clientX;
   mousePosition.y = clientY;
@@ -54,14 +61,7 @@ export const dragCropBox = (event, context) => {
   context.c_position.x = crop_pos.x;
   context.c_position.y = crop_pos.y;
 
-//   console.log(crop_pos);
-};
-
-export const checkBorder = (pos) => {
-    pos.x = Math.max(0, Math.min(pos.x, imgBox_rect.w - cropBox_rect.w));
-    pos.y = Math.max(0, Math.min(pos.y, imgBox_rect.h - cropBox_rect.h));
-
-//   return x1, y1;
+  console.log(crop_pos);
 };
 
 export const stopDragging = (dragCropBox, stopDragging) => {
