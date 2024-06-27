@@ -15,11 +15,8 @@ export default {
   name: "GalleryPicture",
 
   created() {
+    
     this.updateImageSource(this.imageSource);
-    eventBus.on("imageUploaded", this.updateImageSource);
-    eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.on("cropInfoUploaded", (dem) => console.log(dem.a, dem.b, dem.c, dem.d) );
-    // this.updateMaskDem(wC, hC, wI, hI)
     // (this.widthC,
     // this.heightC, imgBox.width, imgBox.height)
   },
@@ -73,7 +70,7 @@ export default {
       this.mask_pos.x = mask_c.clientWidth * pos.x / this.helper_calc_pos.w;
       this.mask_pos.y = mask_c.clientHeight * pos.y / this.helper_calc_pos.h;
 
-      console.log(pos);
+      // console.log(pos);
     },
 
     updateMaskDem(wper, hper, imgw, imgh) {
@@ -83,7 +80,7 @@ export default {
       this.helper_calc_pos.w = imgw;
       this.helper_calc_pos.h = imgh;
 
-      console.log(wper, hper, imgw, imgh);
+      // console.log(wper, hper, imgw, imgh);
     },
     // updateMask
   },
@@ -103,6 +100,10 @@ export default {
 
   mounted() {
     this.updateImageSource(this.imageSource);
+    eventBus.on("imageUploaded", this.updateImageSource);
+    eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
+    eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    // this.updateImageSource(this.imageSource);
     window.addEventListener('resize', this.updateMask_C_Size);
   },
 
@@ -142,13 +143,15 @@ export default {
 
   .mask{
     position: relative;
-    background-color: black;
+    background-color: red;
+    opacity: 0.4;
 
+    transition: all 1s ease;
     // left: 10px;
     // top: 10px;
     // z-index: 1;
-    // border: 1px solid black;
-    // opacity: 0.3;
+    // border: 1px solid white;
+    
   }
 }
 
