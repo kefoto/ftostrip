@@ -16,12 +16,13 @@
 
 <script>
 //TODO: when the bounding box changes, the mask changes,
-// import eventBus from "../../util/eventBus";
+import eventBus from "../../util/eventBus";
 
 import {
   startDragging,
   dragCropBox,
   stopDragging,
+  //   checkBorder
 } from "../../util/dragUtil.js";
 // src/util/dragElement/dragMotion.js
 export default {
@@ -43,8 +44,8 @@ export default {
   },
 
   created() {
-    this.calculateImageDimensions();
-    this.calculateCrop();
+    this.calculateInputDimensions();
+    this.update();
   },
 
   props: {
@@ -53,7 +54,7 @@ export default {
       required: true,
     },
     cropSize: {
-      type: String,
+      type: Number,
       required: true,
     },
     isInverted: {
@@ -67,7 +68,7 @@ export default {
   },
 
   methods: {
-    calculateImageDimensions() {
+    calculateInputDimensions() {
       let temp_h = 100,
         temp_w = 100;
       if (this.inputSize > 1) {
@@ -95,46 +96,39 @@ export default {
       let crop_temp = this.cropSize;
       let scale_percent = this.scale / 10;
 
-      //   this.inputSize, this.widthI, this.heightI,
-
       if (this.isInverted) {
         crop_temp = 1 / crop_temp;
       }
 
       if (crop_temp > this.inputSize) {
         this.heightC =
-          scale_percent *
+          Math.round(scale_percent *
           (this.widthI / this.inputSize / crop_temp) *
-          this.inputSize;
-        this.widthC = (scale_percent * this.widthI) / this.inputSize;
+          this.inputSize);
+        this.widthC = Math.round((scale_percent * this.widthI) / this.inputSize);
       } else {
         this.widthC =
-          (scale_percent * (this.heightI * this.inputSize * crop_temp)) /
-          this.inputSize;
-        this.heightC = scale_percent * this.heightI * this.inputSize;
+          Math.round((scale_percent * (this.heightI * this.inputSize * crop_temp)) /
+          this.inputSize);
+        this.heightC = Math.round(scale_percent * this.heightI * this.inputSize);
       }
     },
 
-    // updateBoxSizes() {
-    //   this.updateImgBoxSize();
-    //   this.updateCropBoxSize();
-    // },
+    update() {
+        this.calculateCrop();
+        this.$nextTick(() => {
+            this.emit_dem();
+        });
+        
+    },
 
-    // updateImgBoxSize() {
-    //     const imgBox = this.$refs.imgBox.getBoundingClientRect();
-    //     this.imgBox_rect.w = imgBox.width;
-    //     this.imgBox_rect.h = imgBox.height;
-
-    //     console.log(`Image Box - Width: ${this.imgBoxWidth}, Height: ${this.imgBoxHeight}`);
-    // },
-
-    // updateCropBoxSize() {
-    //     const cropBox = this.$refs.cropBox.getBoundingClientRect();
-    //     this.cropBox_rect.w = cropBox.width;
-    //     this.cropBox_rect.h = cropBox.height;
-
-    //     console.log(`Crop Box - Width: ${this.cropBoxWidth}, Height: ${this.cropBoxHeight}`);
-    // },
+    emit_dem() {
+        const imgBox = this.$refs.imgBox;
+        console.log(this.widthC,
+            this.heightC, imgBox.clientWidth, imgBox.clientHeight);
+        eventBus.emit("cropInfoUploaded", {a: this.widthC, b: this.heightC, c:imgBox.clientWidth, d:imgBox.clientHeight});
+            // /
+    },
 
     startDragging(event) {
       const imgBox = this.$refs.imgBox.getBoundingClientRect();
@@ -149,30 +143,83 @@ export default {
     },
 
     dragCropBox(event) {
+        // Change the this.c_position
       dragCropBox(event, this);
+      
+    //   const cropBox = this.$refs.cropBox.getBoundingClientRect();
+
+     
+
     },
 
     stopDragging() {
       stopDragging(this.dragCropBox, this.stopDragging);
+      this.$nextTick(() => {
+        eventBus.emit("cropPosUploaded", this.c_position);
+        });
     },
+
+
+    
+
+    // checkBorder() {
+    //   const imgBox = this.$refs.imgBox.getBoundingClientRect();
+    //   const cropBox = this.$refs.cropBox.getBoundingClientRect();
+
+    //   let imgBox_rect = {
+    //     w: imgBox.width,
+    //     h: imgBox.height,
+    //     l: imgBox.left,
+    //     t: imgBox.top,
+    //   };
+    //   let cropBox_rect = {
+    //     w: cropBox.width,
+    //     h: cropBox.height,
+    //     l: cropBox.left,
+    //     t: cropBox.top
+    //   }
+
+    //   if((imgBox_rect.w + imgBox_rect.l - cropBox_rect.w - cropBox_rect.l) < 0){
+    //     console.log(imgBox_rect.w + imgBox_rect.l - cropBox_rect.w - cropBox_rect.l);
+
+    //     this.$nextTick(() => {
+    //         this.c_position.x += (imgBox_rect.w + imgBox_rect.l - cropBox_rect.w - cropBox_rect.l);
+    //     });
+        
+    //   }
+    //   if((imgBox_rect.h + imgBox_rect.t - cropBox_rect.h - cropBox_rect.t) < 0){
+    //     // console.log(imgBox_rect.h + imgBox_rect.t - cropBox_rect.h - cropBox_rect.t);
+    //     this.$nextTick(() => {
+    //     this.c_position.y += (imgBox_rect.h + imgBox_rect.t - cropBox_rect.h - cropBox_rect.t);
+    //     });
+    //   }
+
+    // //   console.log(imgBox,cropBox);
+
+    // },
   },
   watch: {
     inputSize() {
       // console.log(this.inputSize);
-      this.calculateImageDimensions();
-      this.calculateCrop();
+      this.calculateInputDimensions();
+      this.update();
+    //   this.checkBorder();
+      //   checkBorder(this.c_position);
     },
 
     cropSize() {
-      this.calculateCrop();
+        this.update();
+    
     },
 
     isInverted() {
-      this.calculateCrop();
+        this.update();
+    //   this.checkBorder();
     },
 
     scale() {
-      this.calculateCrop();
+        this.update();
+    //   this.checkBorder();
     },
 
     // Add more watchers as needed for other properties
@@ -196,12 +243,11 @@ export default {
       };
     },
   },
-
-  //   mounted() {
-  //     this.calculateImageDimensions();
+    mounted() {
+  //     this.calculateInputDimensions();
   //     this.updateBoxSizes();
   //     window.addEventListener('resize', this.updateBoxSizes);
-  //   },
+    },
   //   beforeUnmount() {
   //     window.removeEventListener('resize', this.updateBoxSizes);
   //   },
@@ -238,7 +284,7 @@ export default {
       //   height: 40%;
 
       &:hover {
-        cursor: grab;
+        cursor: move;
       }
     }
     // }

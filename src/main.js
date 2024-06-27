@@ -1,6 +1,7 @@
-import { createApp } from 'vue'
-import mitt from 'mitt'
-import App from './App.vue'
+import { createApp } from 'vue';
+import mitt from 'mitt';
+// import Cropper from 'cropperjs';
+import App from './App.vue';
 import './assets/styles/fonts.css';
 
 const emitter = mitt()
