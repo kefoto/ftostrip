@@ -3,7 +3,7 @@
     <div id="mask-container" ref="mask_c">
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
-    <img :src="imageSource" alt="Current image" ref="image"/>
+    <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/>
   </div>
 </template>
 
@@ -24,7 +24,12 @@ export default {
   beforeUnmount() {
     eventBus.off("imageUploaded", this.updateImageSource);
     eventBus.off("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.off("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    eventBus.off("cropInfoUploaded", (dem) => {
+      this.temp_dem.a = dem.a;
+      this.temp_dem.b = dem.b;
+      this.temp_dem.c = dem.c;
+      this.temp_dem.d = dem.d;
+    });
     window.removeEventListener('resize', this.updateMask_C_Size);
   },
 
@@ -33,15 +38,45 @@ export default {
 
   data() {
     return {
+      isImageLoad: false,
       imageSource: require("@/assets/1.png"),
       helper_calc_pos: {w: 100, h: 100},
       mask_pos: {x: 0 , y: 0},
       mask_dem: {w: 100 , h: 100},
+      temp_dem: {
+        a: null,
+        b: null,
+        c: null,
+        d: null,
+      },
       //   updateImageSource
     };
   },
 
+  watch: {
+    isImageLoad() {
+      if(this.isImageLoad){
+        console.log("image loaded");
+        this.updateMask_C_Size();
+        this.updateMaskDem(this.temp_dem.a, this.temp_dem.b, this.temp_dem.c, this.temp_dem.d);
+        this.isImageLoad = false;
+      }
+    },
+
+    temp_dem() {
+      console.log("main image mask update");
+      if(this.temp_dem.a !== null && this.temp_dem !== null && this.temp_dem.c !== null && this.temp_dem.d !== null){
+        this.updateMaskDem(this.temp_dem.a, this.temp_dem.b, this.temp_dem.c, this.temp_dem.d);
+      }
+    }
+  },
+
   methods: {
+    imageLoaded() {
+      this.isImageLoad = true;
+    },
+
+    
     updateImageSource(newSource) {
       this.imageSource = newSource;
 
@@ -102,7 +137,12 @@ export default {
     this.updateImageSource(this.imageSource);
     eventBus.on("imageUploaded", this.updateImageSource);
     eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    eventBus.on("cropInfoUploaded", (dem) => {
+      this.temp_dem.a = dem.a;
+      this.temp_dem.b = dem.b;
+      this.temp_dem.c = dem.c;
+      this.temp_dem.d = dem.d;
+    });
     // this.updateImageSource(this.imageSource);
     window.addEventListener('resize', this.updateMask_C_Size);
   },
@@ -130,8 +170,8 @@ export default {
   transform: translate(-50%, -50%);
 
   // border: 1px solid #646464;
-  // background-color: red;
-  opacity: 1;
+  background-color: gray;
+  opacity: 0.5;
   user-select: none;
 
   z-index: 1;

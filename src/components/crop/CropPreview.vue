@@ -80,6 +80,7 @@ export default {
       this.heightI = temp_h;
 
       //   console.log(this.inputSize);
+      console.log('calculate input dimension')
     },
 
     d_toString(x) {
@@ -87,8 +88,6 @@ export default {
     },
 
     calculateCrop() {
-      //   let temp_h = 100,
-      //     temp_w = 100;
       //   const crop_size_temp = this.cropSize.replace(":", "/");
       //   const sizeArr = this.cropSize.split(":");
       //   let w = sizeArr[0];
@@ -112,6 +111,9 @@ export default {
           this.inputSize);
         this.heightC = Math.round(scale_percent * this.heightI * this.inputSize);
       }
+
+
+      console.log('calculate crop dimension')
     },
 
     update() {
@@ -124,9 +126,11 @@ export default {
 
     emit_dem() {
         const imgBox = this.$refs.imgBox;
-        console.log(this.widthC,
-            this.heightC, imgBox.clientWidth, imgBox.clientHeight);
+        
+        // console.log(this.widthC,
+        //     this.heightC, imgBox.clientWidth, imgBox.clientHeight);
         eventBus.emit("cropInfoUploaded", {a: this.widthC, b: this.heightC, c:imgBox.clientWidth, d:imgBox.clientHeight});
+        console.log('emit preview dim information')
             // /
     },
 
@@ -145,11 +149,6 @@ export default {
     dragCropBox(event) {
         // Change the this.c_position
       dragCropBox(event, this);
-      
-    //   const cropBox = this.$refs.cropBox.getBoundingClientRect();
-
-     
-
     },
 
     stopDragging() {
@@ -158,10 +157,6 @@ export default {
         eventBus.emit("cropPosUploaded", this.c_position);
         });
     },
-
-
-    
-
     // checkBorder() {
     //   const imgBox = this.$refs.imgBox.getBoundingClientRect();
     //   const cropBox = this.$refs.cropBox.getBoundingClientRect();

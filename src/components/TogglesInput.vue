@@ -178,7 +178,9 @@ export default {
           const reader = new FileReader();
           reader.onload = (e) => {
             this.imageSource = e.target.result;
-    
+            this.selectedWord = this.words[0];
+            this.isInverted="inverted"
+            this.crop_boost = 10;
             this.emitImage(reader.result);
           }
           
@@ -200,6 +202,7 @@ export default {
       img.src = source;
       img.onload = () => {
         this.input_aspec = img.width / img.height;
+        console.log('reading file')
           // eventBus.emit("imageSize", img.width / img.height);
         };
 
@@ -239,7 +242,7 @@ export default {
   margin: 0 10px;
   padding: 5px;
 
-  z-index: 1;
+  z-index: 2;
 
   > div {
     //   // transform: scale(0.9);
@@ -283,7 +286,7 @@ export default {
       text-align: center;
       display: inherit;
       font-size: 0.9rem;
-
+      user-select: none;
       align-items: center;
     }
 
@@ -318,6 +321,7 @@ export default {
       text-align: right;
       font-size: 0.8rem;
       border-radius: 2px;
+      user-select: none;
     }
 
     .img-drop-button {
@@ -406,7 +410,7 @@ export default {
     text-align: center;
     display: inherit;
     font-size: 0.8rem;
-
+    user-select: none;
     align-items: center;
   }
 
@@ -445,6 +449,7 @@ export default {
     text-align: right;
     font-size: 0.8rem;
     border-radius: 2px;
+    user-select: none;
   }
 
   .img-drop-button {
