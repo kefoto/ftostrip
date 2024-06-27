@@ -16,12 +16,14 @@
 
 <script>
 //TODO: when the bounding box changes, the mask changes,
-// import eventBus from "../../util/eventBus";
+import eventBus from "../../util/eventBus";
+import { debounce } from "lodash";
 
 import {
   startDragging,
   dragCropBox,
   stopDragging,
+  //   checkBorder
 } from "../../util/dragUtil.js";
 // src/util/dragElement/dragMotion.js
 export default {
@@ -43,8 +45,9 @@ export default {
   },
 
   created() {
-    this.calculateImageDimensions();
-    this.calculateCrop();
+    this.debouncedUpdate = debounce(this.update, 100);
+    this.calculateInputDimensions();
+    this.debouncedUpdate();
   },
 
   props: {
@@ -53,7 +56,7 @@ export default {
       required: true,
     },
     cropSize: {
-      type: String,
+      type: Number,
       required: true,
     },
     isInverted: {
@@ -67,7 +70,7 @@ export default {
   },
 
   methods: {
-    calculateImageDimensions() {
+    calculateInputDimensions() {
       let temp_h = 100,
         temp_w = 100;
       if (this.inputSize > 1) {
@@ -78,7 +81,8 @@ export default {
       this.widthI = temp_w;
       this.heightI = temp_h;
 
-      //   console.log(this.inputSize);
+      console.log("2", this.widthI, this.heightI);
+      // console.log('calculate input dimension')
     },
 
     d_toString(x) {
@@ -86,55 +90,51 @@ export default {
     },
 
     calculateCrop() {
-      //   let temp_h = 100,
-      //     temp_w = 100;
-      //   const crop_size_temp = this.cropSize.replace(":", "/");
-      //   const sizeArr = this.cropSize.split(":");
-      //   let w = sizeArr[0];
-      //   let h = sizeArr[1];
+      let temp_h = 100,
+        temp_w = 100;
+
       let crop_temp = this.cropSize;
       let scale_percent = this.scale / 10;
-
-      //   this.inputSize, this.widthI, this.heightI,
 
       if (this.isInverted) {
         crop_temp = 1 / crop_temp;
       }
-
-      if (crop_temp > this.inputSize) {
-        this.heightC =
-          scale_percent *
-          (this.widthI / this.inputSize / crop_temp) *
-          this.inputSize;
-        this.widthC = (scale_percent * this.widthI) / this.inputSize;
+      
+      // height is shorter
+      if (this.inputSize > crop_temp) {
+          this.widthC = scale_percent * temp_h * crop_temp / this.inputSize;
+          this.heightC = scale_percent * temp_w;
+      // width is shorter
       } else {
-        this.widthC =
-          (scale_percent * (this.heightI * this.inputSize * crop_temp)) /
-          this.inputSize;
-        this.heightC = scale_percent * this.heightI * this.inputSize;
+          this.heightC = scale_percent * temp_w * this.inputSize / crop_temp;
+          this.widthC = scale_percent * temp_h;
+        // console.log('calculate crop dimension')
       }
+      console.log("3", this.widthC, this.heightC, crop_temp, this.inputSize);
     },
 
-    // updateBoxSizes() {
-    //   this.updateImgBoxSize();
-    //   this.updateCropBoxSize();
-    // },
+    update() {
+      this.calculateCrop();
+      this.$nextTick(() => {
+        this.emit_dem();
+      });
+    },
 
-    // updateImgBoxSize() {
-    //     const imgBox = this.$refs.imgBox.getBoundingClientRect();
-    //     this.imgBox_rect.w = imgBox.width;
-    //     this.imgBox_rect.h = imgBox.height;
+    emit_dem() {
+      const imgBox = this.$refs.imgBox;
 
-    //     console.log(`Image Box - Width: ${this.imgBoxWidth}, Height: ${this.imgBoxHeight}`);
-    // },
-
-    // updateCropBoxSize() {
-    //     const cropBox = this.$refs.cropBox.getBoundingClientRect();
-    //     this.cropBox_rect.w = cropBox.width;
-    //     this.cropBox_rect.h = cropBox.height;
-
-    //     console.log(`Crop Box - Width: ${this.cropBoxWidth}, Height: ${this.cropBoxHeight}`);
-    // },
+      // console.log(this.widthC,
+      //     this.heightC, imgBox.clientWidth, imgBox.clientHeight);
+      // console.log("4");
+      eventBus.emit("cropInfoUploaded", {
+        a: this.widthC,
+        b: this.heightC,
+        c: imgBox.clientWidth,
+        d: imgBox.clientHeight,
+      });
+      // console.log('emit preview dim information')
+      // /
+    },
 
     startDragging(event) {
       const imgBox = this.$refs.imgBox.getBoundingClientRect();
@@ -149,30 +149,34 @@ export default {
     },
 
     dragCropBox(event) {
+      // Change the this.c_position
       dragCropBox(event, this);
     },
 
     stopDragging() {
       stopDragging(this.dragCropBox, this.stopDragging);
+      this.$nextTick(() => {
+        eventBus.emit("cropPosUploaded", this.c_position);
+      });
     },
   },
   watch: {
     inputSize() {
-      // console.log(this.inputSize);
-      this.calculateImageDimensions();
-      this.calculateCrop();
+      console.log("1");
+      this.calculateInputDimensions();
+      this.debouncedUpdate();
     },
 
     cropSize() {
-      this.calculateCrop();
+      this.debouncedUpdate();
     },
 
     isInverted() {
-      this.calculateCrop();
+      this.debouncedUpdate();
     },
 
     scale() {
-      this.calculateCrop();
+      this.debouncedUpdate();
     },
 
     // Add more watchers as needed for other properties
@@ -196,12 +200,7 @@ export default {
       };
     },
   },
-
-  //   mounted() {
-  //     this.calculateImageDimensions();
-  //     this.updateBoxSizes();
-  //     window.addEventListener('resize', this.updateBoxSizes);
-  //   },
+  mounted() {},
   //   beforeUnmount() {
   //     window.removeEventListener('resize', this.updateBoxSizes);
   //   },
@@ -238,7 +237,7 @@ export default {
       //   height: 40%;
 
       &:hover {
-        cursor: grab;
+        cursor: move;
       }
     }
     // }

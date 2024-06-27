@@ -1,50 +1,73 @@
 <template>
   <div class="image-container">
-    <!-- <div id="mask"></div> -->
-    <img :src="imageSource" alt="Current image" />
+    <div id="mask-container" ref="mask_c">
+      <div class="mask" ref="mask" :style="maskStyles"></div>
+    </div>
+    <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
+    <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
   </div>
 </template>
 
 <script>
 import eventBus from "../util/eventBus";
+// import Cropper from "cropperjs";
 // import {imageSource} from "./TogglesInput.vue"
 export default {
   name: "GalleryPicture",
 
   created() {
-<<<<<<< HEAD
     
     this.updateImageSource(this.imageSource);
-    // (this.widthC,
-    // this.heightC, imgBox.width, imgBox.height)
-=======
     eventBus.on("imageUploaded", this.updateImageSource);
->>>>>>> parent of 6bbdbad (tried to update the main image from the preview, the emitter has an issue, resizing has an issue)
+    eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
+    eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    // this.updateImageSource(this.imageSource);
+    window.addEventListener('resize', this.updateMask_C_Size);
   },
 
   beforeUnmount() {
     eventBus.off("imageUploaded", this.updateImageSource);
+    eventBus.off("cropPosUploaded", (pos) => this.updateMaskPos(pos));
+    eventBus.off("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    window.removeEventListener('resize', this.updateMask_C_Size);
   },
 
   props: {
-    initialImageSource: {
-      type: String,
-      default: () => require("@/assets/1.png"),
-    },
   },
 
   data() {
     return {
-      imageSource: this.initialImageSource,
+      isImageLoad: false,
+      imageSource: require("@/assets/1.png"),
+      helper_calc_pos: {w: 100, h: 100},
+      mask_pos: {x: 0 , y: 0},
+      mask_dem: {w: 100 , h: 100},
+      // temp_dem: {
+      //   a: 10,
+      //   b: 10,
+      //   c: 10,
+      //   d: 10,
+      // },
       //   updateImageSource
     };
   },
 
+  watch: {
+  },
+
   methods: {
+    imageLoaded() {
+      this.isImageLoad = true;
+    },
+
+    
     updateImageSource(newSource) {
       this.imageSource = newSource;
+
+      this.$nextTick(() => {
+        this.updateMask_C_Size();
+      });
     },
-<<<<<<< HEAD
 
     updateMask_C_Size() {
       const image = this.$refs.image;
@@ -79,30 +102,28 @@ export default {
       // console.log(wper, hper, imgw, imgh);
     },
     // updateMask
-=======
->>>>>>> parent of 6bbdbad (tried to update the main image from the preview, the emitter has an issue, resizing has an issue)
   },
 
   computed: {
-    clipping() {
+    maskStyles() {
       return {
-        'clip-path': `rect({}px {}px {}px {}px)`
+        width: this.mask_dem.w + "%",
+        height: this.mask_dem.h + "%",
+
+        left: this.mask_pos.x + "px",
+        top: this.mask_pos.y + "px",
       }
-<<<<<<< HEAD
 
     },
   },
 
   mounted() {
-    this.updateImageSource(this.imageSource);
-    eventBus.on("imageUploaded", this.updateImageSource);
-    eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
     // this.updateImageSource(this.imageSource);
-    window.addEventListener('resize', this.updateMask_C_Size);
-=======
-    }
->>>>>>> parent of 6bbdbad (tried to update the main image from the preview, the emitter has an issue, resizing has an issue)
+    // eventBus.on("imageUploaded", this.updateImageSource);
+    // eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
+    // eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    // // this.updateImageSource(this.imageSource);
+    // window.addEventListener('resize', this.updateMask_C_Size);
   },
 
 };
@@ -121,22 +142,22 @@ export default {
   transition: all 0.3s ease;
 }
 
-#mask {
-  position: absolute;
+#mask-container {
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 
-  border: 1px solid #646464;
-  // background-color: black;
+  // border: 1px solid #646464;
+  background-color: grey;
+  opacity: 0.5;
   user-select: none;
 
   z-index: 1;
-  width: 60%;
+  width: 50%;
   height: 20%;
   max-width: 600px;
   // object-fit: cover;
-<<<<<<< HEAD
 
 
   .mask{
@@ -151,12 +172,10 @@ export default {
     // border: 1px solid white;
     
   }
-=======
->>>>>>> parent of 6bbdbad (tried to update the main image from the preview, the emitter has an issue, resizing has an issue)
 }
 
 img {
-  width: 60%;
+  width: 50%;
   max-width: 600px;
   height: auto;
   position: relative;

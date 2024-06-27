@@ -61,7 +61,7 @@ export const dragCropBox = (event, context) => {
   context.c_position.x = crop_pos.x;
   context.c_position.y = crop_pos.y;
 
-  console.log(crop_pos);
+  // console.log(crop_pos);
 };
 
 export const stopDragging = (dragCropBox, stopDragging) => {

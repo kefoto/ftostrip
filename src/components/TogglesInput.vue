@@ -155,7 +155,7 @@ export default {
         let w = sizeArr[0];
         let h = sizeArr[1];
 
-        return w / h;
+        return (w / h).toFixed(2);
       }
     }
   },
@@ -179,6 +179,9 @@ export default {
           reader.onload = (e) => {
             this.imageSource = e.target.result;
             this.$nextTick(() => {
+              this.selectedWord = this.words[0];
+              this.crop_boost = 10;
+              this.verted = false;
               // console.log(reader.result);
               // console.log('Image source updated:', this.imageSource);
             });
@@ -203,7 +206,7 @@ export default {
       var img = new Image();
       img.src = source;
       img.onload = () => {
-        this.input_aspec = img.width / img.height;
+        this.input_aspec = (img.width / img.height).toFixed(2);
           // eventBus.emit("imageSize", img.width / img.height);
         };
 
@@ -287,7 +290,7 @@ export default {
       text-align: center;
       display: inherit;
       font-size: 0.9rem;
-
+      user-select: none;
       align-items: center;
     }
 
@@ -312,6 +315,8 @@ export default {
       align-items: center;
       // margin-left: auto;
       margin-left: auto;
+
+      
     }
 
     .display-input {
@@ -319,6 +324,7 @@ export default {
       width: 30%;
       margin-left: 0.5%;
       // margin: 0 10px;
+      user-select: none;
       text-align: right;
       font-size: 0.8rem;
       border-radius: 2px;
@@ -410,7 +416,7 @@ export default {
     text-align: center;
     display: inherit;
     font-size: 0.8rem;
-
+    user-select: none;
     align-items: center;
   }
 
@@ -446,6 +452,7 @@ export default {
     width: 30%;
     margin-left: 0.5%;
     // margin: 0 10px;
+    user-select: none;
     text-align: right;
     font-size: 0.8rem;
     border-radius: 2px;
@@ -477,5 +484,6 @@ export default {
       transition: all 0.3s ease;
     }
   }
+
 }
 </style>
