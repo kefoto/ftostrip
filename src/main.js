@@ -5,6 +5,7 @@ import mitt from 'mitt';
 // import lodash from 'lodash';
 import App from './App.vue';
 import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css'
 import './assets/styles/fonts.css';
 
 const emitter = mitt()

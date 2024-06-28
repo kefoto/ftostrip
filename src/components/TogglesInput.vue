@@ -12,10 +12,11 @@
           <div for="image-drop" @click="onPickFile" class="img-drop-button">
             <img src="../assets/+.svg" alt="" />
           </div>
-
+          <el-button round @click="toggleTable">{{ tableExpanded ? 'Collapse Table' : 'Expand Table' }}</el-button>
           <!-- <button >Input Image</button> -->
           <span class="display-input">{{ fileName }}</span>
         </div>
+        
 
         <div id="for_crop_img">
           <div class="sub_section">
@@ -50,14 +51,15 @@
             </div>
           </div>
           <CropPreview
-            :cropSize="processedWord"
-            :inputSize="input_aspec"
+            :cropSize="parseFloat(processedWord)"
+            :inputSize="parseFloat(input_aspec)"
             :isInverted="inverted"
-            :scale="crop_boost"
+            :scale="parseFloat(crop_boost)"
             id="cPreview"
           ></CropPreview>
         </div>
       </div>
+      <!-- <el-divider content-position="left">edit</el-divider> -->
       <div id="basic" class="container">
         <p> dupliate</p>
         <div class="normal-input">
@@ -489,6 +491,10 @@ export default {
       transition: all 0.3s ease;
     }
   }
+}
+
+p {
+  user-select: none;
 }
 
 // #about_img{

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div ref="imgBox" :style="imgBoxStyles" class="img-box">
+    <div ref="imgBox" :style="imgBoxStyles" class="img-box" @load="set_imgBox_rect">
       <div
         ref="cropBox"
         :style="cropBoxStyles"
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-//TODO: when the bounding box changes, the mask changes,
+//TODO: check calling for optimization
 import eventBus from "../../util/eventBus";
 import { debounce } from "lodash";
 
@@ -23,7 +23,7 @@ import {
   startDragging,
   dragCropBox,
   stopDragging,
-  //   checkBorder
+  // checkBorder
 } from "../../util/dragUtil.js";
 // src/util/dragElement/dragMotion.js
 export default {
@@ -41,10 +41,12 @@ export default {
       cropSize_num: 1,
 
       c_position: { x: 0, y: 0 },
+      imgBox_rect: { w: 0, h: 0 },
+      cropBox_rect: { w: 0, h: 0 },
     };
   },
 
-  created() {
+  mounted() {
     this.debouncedUpdate = debounce(this.update, 100);
     this.calculateInputDimensions();
     this.debouncedUpdate();
@@ -81,14 +83,24 @@ export default {
       this.widthI = temp_w;
       this.heightI = temp_h;
 
-      console.log("2", this.widthI, this.heightI);
+      this.set_imgBox_rect();
+
+      // console.log("2", this.widthI, this.heightI);
       // console.log('calculate input dimension')
+    },
+
+    set_imgBox_rect() {
+      const imgBox = this.$refs.imgBox;
+      this.imgBox_rect = { w: imgBox.clientWidth * this.widthI / 100, h: imgBox.clientHeight * this.heightI / 100};
+      // console.log(imgBox.clientWidth, imgBox.clientHeight, this.widthI,
+      // this.heightI)
     },
 
     d_toString(x) {
       return x + "%";
     },
 
+    //calculate Crop emits sizing information
     calculateCrop() {
       let temp_h = 100,
         temp_w = 100;
@@ -99,41 +111,60 @@ export default {
       if (this.isInverted) {
         crop_temp = 1 / crop_temp;
       }
-      
+
       // height is shorter
       if (this.inputSize > crop_temp) {
-          this.widthC = scale_percent * temp_h * crop_temp / this.inputSize;
-          this.heightC = scale_percent * temp_w;
-      // width is shorter
+        this.widthC = (scale_percent * temp_h * crop_temp) / this.inputSize;
+        this.heightC = scale_percent * temp_w;
+        // width is shorter
       } else {
-          this.heightC = scale_percent * temp_w * this.inputSize / crop_temp;
-          this.widthC = scale_percent * temp_h;
-        // console.log('calculate crop dimension')
+        this.heightC = (scale_percent * temp_w * this.inputSize) / crop_temp;
+        this.widthC = scale_percent * temp_h;
       }
-      console.log("3", this.widthC, this.heightC, crop_temp, this.inputSize);
+
+      this.cropBox_rect = {
+        w: (this.imgBox_rect.w * this.widthC) / 100,
+        h: (this.imgBox_rect.h * this.heightC) / 100,
+      };
+      console.log("1", this.cropBox_rect);
     },
 
     update() {
       this.calculateCrop();
+      this.checkBorder();
       this.$nextTick(() => {
         this.emit_dem();
       });
     },
 
+    // reset?
+    //check border emits location information
+    checkBorder() {
+      this.c_position.x = Math.max(
+        0,
+        Math.min(this.c_position.x, this.imgBox_rect.w - this.cropBox_rect.w)
+      );
+      this.c_position.y = Math.max(
+        0,
+        Math.min(this.c_position.y, this.imgBox_rect.h - this.cropBox_rect.h)
+      );
+      console.log("2",
+        this.cropBox_rect, this.imgBox_rect,
+        this.imgBox_rect.w - this.cropBox_rect.w,
+        this.imgBox_rect.h - this.cropBox_rect.h
+      );
+      eventBus.emit("cropPosUploaded", this.c_position);
+    },
+
     emit_dem() {
       const imgBox = this.$refs.imgBox;
 
-      // console.log(this.widthC,
-      //     this.heightC, imgBox.clientWidth, imgBox.clientHeight);
-      // console.log("4");
       eventBus.emit("cropInfoUploaded", {
         a: this.widthC,
         b: this.heightC,
         c: imgBox.clientWidth,
         d: imgBox.clientHeight,
       });
-      // console.log('emit preview dim information')
-      // /
     },
 
     startDragging(event) {
@@ -162,7 +193,7 @@ export default {
   },
   watch: {
     inputSize() {
-      console.log("1");
+      // console.log("1");
       this.calculateInputDimensions();
       this.debouncedUpdate();
     },
@@ -178,8 +209,6 @@ export default {
     scale() {
       this.debouncedUpdate();
     },
-
-    // Add more watchers as needed for other properties
   },
 
   computed: {
@@ -199,8 +228,8 @@ export default {
         top: this.c_position.y + "px",
       };
     },
+
   },
-  mounted() {},
   //   beforeUnmount() {
   //     window.removeEventListener('resize', this.updateBoxSizes);
   //   },
@@ -214,6 +243,7 @@ export default {
   display: flex;
   width: 100%;
   height: 100%;
+  // background-color: black;
 
   .img-box {
     position: relative;
@@ -223,19 +253,13 @@ export default {
     background-color: lightgrey;
     opacity: 0.7;
     transition: all 0.2s ease;
-    // .crop-box {
 
     .crop-box {
       position: absolute;
       border: 0.5px solid white;
       background-color: red;
       opacity: 0.7;
-      //   left: 0;
-      //   top: 0;
       transition: all 0.2s ease;
-      // transform: ;
-      //   width: 50%;
-      //   height: 40%;
 
       &:hover {
         cursor: move;

@@ -64,6 +64,20 @@ export const dragCropBox = (event, context) => {
   // console.log(crop_pos);
 };
 
+
+export const checkBorder = (x , y) => {
+  x = Math.max(
+    0,
+    Math.min(x, imgBox_rect.w - cropBox_rect.w)
+  );
+  y = Math.max(
+    0,
+    Math.min(y, imgBox_rect.h - cropBox_rect.h)
+  );
+
+  return x,y;
+}
+
 export const stopDragging = (dragCropBox, stopDragging) => {
   dragging = false;
   document.removeEventListener("mousemove", dragCropBox);
