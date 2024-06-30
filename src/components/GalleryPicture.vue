@@ -1,6 +1,6 @@
 <template>
   <div class="image-container">
-    <div id="mask-container" ref="mask_c">
+    <div id="mask-container" ref="mask_c" :style="maskCStyles">
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
     <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
@@ -21,6 +21,7 @@ export default {
     eventBus.on("imageUploaded", this.updateImageSource);
     eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
     eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    eventBus.on("TableExpanded",  this.updatePMaskShow);
     // this.updateImageSource(this.imageSource);
     window.addEventListener('resize', this.updateMask_C_Size);
   },
@@ -29,6 +30,7 @@ export default {
     eventBus.off("imageUploaded", this.updateImageSource);
     eventBus.off("cropPosUploaded", (pos) => this.updateMaskPos(pos));
     eventBus.off("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
+    eventBus.off("TableExpanded",  this.updatePMaskShow);
     window.removeEventListener('resize', this.updateMask_C_Size);
   },
 
@@ -37,6 +39,7 @@ export default {
 
   data() {
     return {
+      isPreviewMaskShow: false,
       isImageLoad: false,
       imageSource: require("@/assets/1.png"),
       helper_calc_pos: {w: 100, h: 100},
@@ -59,6 +62,11 @@ export default {
     imageLoaded() {
       this.isImageLoad = true;
     },
+
+    updatePMaskShow(x) {
+      this.isPreviewMaskShow = x;
+    },
+
 
     
     updateImageSource(newSource) {
@@ -115,6 +123,12 @@ export default {
       }
 
     },
+    maskCStyles() {
+      return {
+        opacity: this.isPreviewMaskShow ? 1 : 0,
+        transition: 'opacity 0.3s ease', // Adjust the transition duration and easing as needed
+      };
+    },
   },
 
   mounted() {
@@ -139,7 +153,7 @@ export default {
   padding: 10px;
   // background-color: red;
 
-  transition: all 0.3s ease;
+  // transition: all 0.3s ease;
 }
 
 #mask-container {

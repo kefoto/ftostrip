@@ -4,168 +4,154 @@
       <div id="about_img" class="container">
         <div class="normal-input">
           <el-row :gutter="10">
-            <el-col :span="18" style="display: flex"
-              ><input
+            <el-col :span="18" style="display: flex">
+              <input
                 id="image-drop"
                 type="file"
                 ref="myFiles"
                 @change="previewFiles"
               />
-              <el-button
-                round
-                @click="onPickFile"
-                style="justify-content: center"
-              >
-                <el-icon :size="size" :color="color">
-                  <Upload />
-                </el-icon>
-                <!-- <el-icon><Upload /></el-icon> -->
-                <!-- <el-icon class="el-icon--right"><Upload /></el-icon> -->
-              </el-button>
+              <el-button circle @click="onPickFile" icon="upload"></el-button>
 
-              <el-button round @click="toggleTable">{{
-                tableExpanded ? "Crop -" : "Crop +"
-              }}</el-button></el-col
-            >
+              <el-button
+                circle
+                @click="toggleVisibility"
+                style="justify-content: space-between;"
+                icon="crop"
+                :style="buttonActivateStyle"
+              >
+              </el-button>
+            </el-col>
             <!-- style="background-color: red;" -->
             <el-col :span="6" class="text">
               <el-text class="text">{{ fileName }}</el-text>
               <!-- <span class="display-input"></span> -->
             </el-col>
           </el-row>
+          <el-collapse-transition>
+            <el-row
+              :gutter="15"
+              id="expand_table"
+              v-show="isTableExpanded"
+              v-if="isTableExpanded"
+              style="margin-top: 10px"
+            >
+              <el-col :span="16" class="half_table">
+                <el-row style="padding: 3px 0;">
+                  <el-col :span="12" class="text">
+                    <el-text class="text" for="ratio">Aspect Ratio</el-text>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-select v-model="selectedWord" size="small">
+                      <el-option
+                        v-for="word in words"
+                        :key="word"
+                        :value="word"
+                      />
+                    </el-select>
+                  </el-col>
+                </el-row>
 
-          <el-row :gutter="15" id="expand_table">
-            <el-col :span="16">
-              <el-row>
-                <el-col :span="12" class="text">
-                  <el-text class="text" for="ratio">Aspect Ratio</el-text>
-                </el-col>
-                <el-col :span="12">
-                  <el-select
-                    v-model="selectedWord"
-                    size="small"
-                  >
-                    <el-option
-                      v-for="word in words"
-                      :key="word"
-                      :value="word"
+                <el-row style="padding: 3px 0;">
+                  <el-col :span="12" class="text">
+                    <el-text class="text" for="invert_rotate"
+                      >Crop Size</el-text
+                    >
+                  </el-col>
+                  <el-col :span="12">
+                    <el-slider
+                      size="small"
+                      :show-tooltip="false"
+                      id="crop-boost"
+                      classs="custom-slider"
+                      v-model="crop_boost"
+                      :min="3"
+                      :max="10"
                     />
-                  </el-select>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="12" class="text">
-                  <el-text class="text" for="invert_rotate">invert</el-text>
-                </el-col>
-                <el-col :span="12">
-                  <el-switch v-model="inverted" size="small" />
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="12" class="text">
-                  <el-text class="text" for="invert_rotate">Crop Size</el-text>
-                </el-col>
-                <el-col :span="12">
-                  <el-slider size="small" placement="left" id="crop-boost" v-model="crop_boost" :min="3" :max="10"/>
-                </el-col>
-              </el-row>
-            </el-col>
-            <!-- style="background-color:red;" -->
-            <el-col :span="8">
-              <CropPreview
-                :cropSize="parseFloat(processedWord)"
-                :inputSize="parseFloat(input_aspec)"
-                :isInverted="inverted"
-                :scale="parseFloat(crop_boost)"
-                id="cPreview"
-              ></CropPreview>
-            </el-col>
-          </el-row>
+                  </el-col>
+                </el-row>
+                <el-row style="padding: 3px 0;">
+                  <el-col :span="12" class="text">
+                    <el-text class="text" for="invert_rotate">Invert</el-text>
+                  </el-col>
+                  <el-col :span="12" style="display: flex; justify-content: flex-end;">
+                    <el-switch v-model="inverted" size="small" />
+                  </el-col>
+                </el-row>
+              </el-col>
+              <!-- style="background-color:red;" -->
+              <el-col :span="8">
+                <CropPreview
+                  :cropSize="parseFloat(processedWord)"
+                  :inputSize="parseFloat(input_aspec)"
+                  :isInverted="inverted"
+                  :scale="parseFloat(crop_boost)"
+                  id="cPreview"
+                ></CropPreview>
+              </el-col>
+            </el-row>
+          </el-collapse-transition>
+
           <!-- <button >Input Image</button> -->
         </div>
-
-        <div id="for_crop_img">
-          <div class="sub_section">
-            <!-- <div class="small-input">
-              
-            </div>
-            <div class="small-input">
-              
-            </div>
-            <div class="small-input">
-              <label for="crop-boost">Crop Size</label>
-              <input
-                id="crop-boost"
-                type="range"
-                min="3"
-                max="10"
-                value="10"
-                v-model="crop_boost"
-              />
-            </div> -->
-          </div>
-          <!-- <CropPreview
-            :cropSize="parseFloat(processedWord)"
-            :inputSize="parseFloat(input_aspec)"
-            :isInverted="inverted"
-            :scale="parseFloat(crop_boost)"
-            id="cPreview"
-          ></CropPreview> -->
-        </div>
       </div>
-      <!-- <el-divider content-position="left">edit</el-divider> -->
+      <el-divider content-position="center"><el-icon><Help /></el-icon></el-divider>
       <div id="basic" class="container">
-        <p>dupliate</p>
-        <div class="normal-input">
-          <label for="divisions">x</label>
-          <input
-            id="divisions"
-            type="range"
-            min="1"
-            max="8"
-            value="2"
-            v-model="dupX"
-          />
-          <span class="display-input">{{ dupX }}</span>
-        </div>
-        <div class="normal-input">
-          <label for="divisions">y</label>
-          <input
-            id="divisions"
-            type="range"
-            min="1"
-            max="8"
-            value="2"
-            v-model="dupY"
-          />
-          <span class="display-input">{{ dupY }}</span>
-        </div>
-        <p>split</p>
-        <div class="normal-input">
-          <label for="x-axis">x</label>
-          <input
-            id="x-axis"
-            type="range"
-            min="2"
-            max="32"
-            value="2"
-            v-model="splitX"
-          />
-          <span class="display-input">{{ splitX }}</span>
-        </div>
+        <el-row>
+          <el-text>Duplicate</el-text>
+        </el-row>
+        <el-row :gutter="5" style="padding-left: 15px;">
+          <el-col :span="12" style="display: flex;">
+            <el-col :span="4"> <el-text class="text" size="small">x</el-text> </el-col>
+            <el-col :span="20" :style="colCenterStyle">
+              <el-input-number v-model="dupX" :min="1" :max="8" size="small" placeholder="x" controls-position="right" :style="inputNumStyle"/>
+            </el-col>
+            
+          </el-col>
+          <el-col :span="12" style="display: flex;">
+            <el-col :span="4"> <el-text class="text" size="small">y</el-text> </el-col>
+            <el-col :span="20" :style="colCenterStyle">
+              <el-input-number v-model="dupY" :min="1" :max="8" size="small" placeholder="y" controls-position="right" :style="inputNumStyle"/>
+            </el-col>      
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-text>Split</el-text>
+        </el-row>
+        <el-row :gutter="5" style="padding-left: 15px;">
+          <el-col :span="12" style="display: flex;">
+            <el-col :span="4"> <el-text  class="text" size="small">x</el-text> </el-col>
+            <el-col :span="20" :style="colCenterStyle">
+              <el-input-number v-model="splitX" :min="2" :max="32" size="small" placeholder="x" controls-position="right" :style="inputNumStyle"/>
+            </el-col>
+            
+          </el-col>
+          <el-col :span="12" style="display: flex;">
+            <el-col :span="4"> <el-text class="text" size="small">y</el-text> </el-col>
+            <el-col :span="20" :style="colCenterStyle">
+              <el-input-number v-model="splitY" :min="2" :max="32" size="small"  placeholder="y" controls-position="right" :style="inputNumStyle"/>
+            </el-col>      
+          </el-col>
+        </el-row>
 
-        <div class="normal-input">
-          <label for="y-axis">y</label>
-          <input
-            id="y-axis"
-            type="range"
-            min="2"
-            max="32"
-            value="2"
-            v-model="splitY"
-          />
-          <span class="display-input">{{ splitY }}</span>
-        </div>
+        <el-row>
+          <el-text>Offset</el-text>
+        </el-row>
+        <el-row :gutter="5" style="padding-left: 15px;">
+          <el-col :span="12" style="display: flex;">
+            <el-col :span="4"> <el-text class="text" size="small">x</el-text> </el-col>
+            <el-col :span="20" :style="colCenterStyle">
+              <el-input-number v-model="offsetX" :min="2" :max="32" size="small" placeholder="x" controls-position="right" :style="inputNumStyle"/>
+            </el-col>
+            
+          </el-col>
+          <el-col :span="12" style="display: flex;">
+            <el-col :span="4"> <el-text class="text" size="small">y</el-text> </el-col>
+            <el-col :span="20" :style="colCenterStyle">
+              <el-input-number v-model="offsetY" :min="2" :max="32" size="small"  placeholder="y" controls-position="right" :style="inputNumStyle"/>
+            </el-col>      
+          </el-col>
+        </el-row>
 
         <!-- size, how many divisions in picture, x-how many line, y-how many line, -->
       </div>
@@ -199,9 +185,13 @@ export default {
       dupY: 4,
       splitX: 2,
       splitY: 2,
+      offsetX: 0,
+      offsetY: 0,
       input_aspec: 1,
-      crop_boost: 10,
+      crop_boost: 6,
       inverted: false,
+
+      isTableExpanded: false,
     };
   },
 
@@ -226,6 +216,33 @@ export default {
         return (w / h).toFixed(2);
       }
     },
+
+    // TODO: this styling is a bit weird
+
+    buttonActivateStyle() {
+      return {
+        'background-color':  this.isTableExpanded ? 'black' : 'white',
+        'color': this.isTableExpanded ? 'white': 'black',
+        'transition': 'all 0.3s ease',
+
+      }
+    },
+    inputNumStyle() {
+      return {
+        width: '80%',
+        'text-align': 'center',
+        'align-items': 'center',
+        'justify-content': 'center',
+      }
+    },
+
+    colCenterStyle() {
+      return {
+        'display': 'flex',
+        'align-items': 'center',
+        'justify-content': 'center',
+      }
+    }
   },
 
   methods: {
@@ -265,6 +282,11 @@ export default {
 
         // console.log(file);
       }
+    },
+
+    toggleVisibility() {
+      this.isTableExpanded = !this.isTableExpanded;
+      eventBus.emit("TableExpanded", this.isTableExpanded);
     },
 
     emitImage(source) {
@@ -317,7 +339,7 @@ export default {
     //   // transform: scale(0.9);
     //   // TODO: change this scaling
     // margin: 0;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
 
     &:last-of-type {
       margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
@@ -332,240 +354,25 @@ export default {
 
   //   // margin-bottom: 0;
 
-  //   .normal-input {
-  //     position: relative;
-  //     display: flex;
-  //     // margin-left: 5px;
-  //     width: 100%;
-  //     height: 1.1rem;
-  //     justify-content: space-between;
-  //     align-items: center;
-  //     margin-bottom: 5px;
-  //     padding: 0 5px;
-  //     // background-color: red;
-
-  //     &:last-of-type {
-  //       margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
-  //     }
-
-  //     > label {
-  //       width: 25%;
-  //       text-align: center;
-  //       display: inherit;
-  //       font-size: 0.9rem;
-  //       user-select: none;
-  //       align-items: center;
-  //       padding-left: 5%;
-  //     }
-
-  //     input[type="file"] {
-  //       display: none;
-  //     }
-
-  //     input {
-  //       position: relative;
-  //       width: 33%;
-  //       display: flex;
-  //       align-items: center;
-  //       // margin-left: auto;
-  //       margin: 0 auto;
-  //     }
-
-  //     select {
-  //       position: relative;
-  //       width: 30%;
-  //       //   right:0;
-  //       display: flex;
-  //       align-items: center;
-  //       // margin-left: auto;
-  //       margin-left: auto;
-  //     }
-
-  //     .display-input {
-  //       background-color: #f9f6f6;
-  //       width: 30%;
-  //       margin-left: 0.5%;
-  //       // margin: 0 10px;
-  //       user-select: none;
-  //       text-align: right;
-  //       font-size: 0.8rem;
-  //       border-radius: 2px;
-  //     }
-
-  //     .img-drop-button {
-  //       position: relative;
-  //       // background-color: red;
-  //       width: auto;
-  //       height: 100%;
-  //       border: 0.7px solid black;
-  //       border-radius: 50%;
-  //       transition: all 0.3s ease;
-
-  //       &:hover {
-  //         // transform: invert(100%);
-  //         background-color: black;
-
-  //         img {
-  //           filter: invert(1);
-  //         }
-  //       }
-  //       img {
-  //         // transform: scale(0.9);
-  //         position: relative;
-  //         height: 100%;
-  //         width: auto;
-  //         padding: 10%;
-  //         transition: all 0.3s ease;
-  //       }
-  //     }
-  //   }
-  // }
-
-  // #for_crop_img {
-  //   width: 100%;
-  //   height: 110px;
-  //   display: flex;
-  //   align-content: space-between;
-  //   // position: ;
-  //   .sub_section {
-  //     // background-color: red;
-  //     // margin-top:auto;
-  //     // font-size: 0.5rem;
-  //     height: 100%;
-  //     width: 65%;
-  //     margin-right: auto;
-  //   }
-
   #cPreview {
     width: 120px;
     height: 120px;
     // margin-left: auto;
     // margin-bottom: auto;
     // background-color: red;
-    margin: auto 0;
-  }
-
-  //   margin-bottom: 10px;
-  // }
-  // // CropPreview {
-  // //   position: relative;
-  // //   display: flex;
-  // //   width: 33%;
-  // //   // background-color: red;
-  // // }
-  // .small-input {
-  //   // background-color:
-  //   position: relative;
-  //   display: flex;
-  //   // margin-left: 5px;
-  //   width: 100%;
-  //   height: 0.9rem;
-  //   font-size: 1rem;
-  //   justify-content: space-between;
-
-  //   margin-bottom: 5px;
-  //   padding-right: 5px;
-
-  //   .img-drop {
-  //     height: 1.4rem !important;
-  //   }
-
-  //   &:last-of-type {
-  //     margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
-  //   }
-
-  //   > label {
-  //     width: 60%;
-  //     text-align: center;
-  //     display: inherit;
-  //     font-size: 0.8rem;
-  //     user-select: none;
-  //     align-items: center;
-  //   }
-
-  //   input {
-  //     position: relative;
-  //     width: 40%;
-  //     display: flex;
-  //     align-items: right;
-  //     // padding-right: 10px;
-  //     // margin-right: auto;
-  //     margin: auto;
-  //     // margin: 0 auto;
-  //   }
-
-  //   select {
-  //     position: relative;
-  //     width: 40%;
-  //     //   right:0;
-  //     font-size: 0.65rem;
-  //     display: flex;
-  //     // text-align: center;
-  //     align-items: center;
-  //     // margin-left: auto;
-  //     margin: auto 0;
-  //   }
-
-  //   .display-input {
-  //     background-color: #f9f6f6;
-  //     width: 30%;
-  //     margin-left: 0.5%;
-  //     // margin: 0 10px;
-  //     user-select: none;
-  //     text-align: right;
-  //     font-size: 0.8rem;
-  //     border-radius: 2px;
-  //   }
-
-  //   .img-drop-button {
-  //     position: relative;
-
-  //     width: auto;
-  //     height: 100%;
-  //     border: 0.7px solid black;
-  //     border-radius: 50%;
-  //     transition: all 0.3s ease;
-
-  //     &:hover {
-  //       // transform: invert(100%);
-  //       background-color: black;
-
-  //       img {
-  //         filter: invert(1);
-  //       }
-  //     }
-  img {
-    // transform: scale(0.9);
-    // background-color: red;
-    position: relative;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    height: 20px;
-    width: 20px;
     margin: auto;
-    // padding: 10%;
-    transition: all 0.3s ease;
   }
-  //   }
 }
-
 input[type="file"] {
   display: none;
 }
 
 .text {
-  // background-color: red;
-  justify-content: center;
-  text-align: center;
+  text-align: left;
   margin: auto;
+  padding: 0 5px;
 }
 
-.el-button.round {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .el-upload-list {
   /* Adjust the position as needed */
@@ -575,16 +382,25 @@ input[type="file"] {
   z-index: 1000; /* Ensure it appears above other elements */
 }
 
-// .el-slider__button {
-//   width: 20px; /* Adjust the width as needed */
-//   height: 20px; /* Adjust the height as needed */
-//   border-radius: 50%; /* Make it a perfect circle */
-//   background-color: #409eff; /* Change the color if needed */
-// }
 
 p {
   user-select: none;
 }
+
+.half_table {
+  // display: table;
+  // table-layout: fixed;
+  // background-color: red;
+
+  el-row {
+    background-color: red;
+  }
+}
+
+// el-input-number {
+//   background-color: red;
+//   width: 100%;
+// }
 
 // #about_img{
 //   background-color: red;
