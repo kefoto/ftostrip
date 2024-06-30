@@ -249,7 +249,7 @@ export default {
     position: relative;
     display: flex;
 
-    margin: 0 auto auto auto;
+    margin: auto;
     background-color: lightgrey;
     opacity: 0.7;
     transition: all 0.2s ease;
