@@ -126,7 +126,7 @@ export default {
         w: (this.imgBox_rect.w * this.widthC) / 100,
         h: (this.imgBox_rect.h * this.heightC) / 100,
       };
-      console.log("1", this.cropBox_rect);
+      // console.log("1", this.cropBox_rect);
     },
 
     update() {
@@ -148,12 +148,18 @@ export default {
         0,
         Math.min(this.c_position.y, this.imgBox_rect.h - this.cropBox_rect.h)
       );
-      console.log("2",
-        this.cropBox_rect, this.imgBox_rect,
-        this.imgBox_rect.w - this.cropBox_rect.w,
-        this.imgBox_rect.h - this.cropBox_rect.h
-      );
+      // console.log("2",
+      //   this.cropBox_rect, this.imgBox_rect,
+      //   this.imgBox_rect.w - this.cropBox_rect.w,
+      //   this.imgBox_rect.h - this.cropBox_rect.h
+      // );
+
       eventBus.emit("cropPosUploaded", this.c_position);
+      // eventBus.emit("cropPosUploaded", 
+      // {
+      //   x: this.c_position.x/(this.imgBox_rect.w - this.cropBox_rect.w),
+      //   y: this.c_position.y/(this.imgBox_rect.h - this.cropBox_rect.h)
+      // });
     },
 
     emit_dem() {
@@ -188,6 +194,7 @@ export default {
       stopDragging(this.dragCropBox, this.stopDragging);
       this.$nextTick(() => {
         eventBus.emit("cropPosUploaded", this.c_position);
+        // console.log(this.c_position);
       });
     },
   },

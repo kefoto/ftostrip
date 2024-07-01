@@ -26,7 +26,7 @@
             </el-col>
             <!-- style="background-color: red;" -->
             <el-col :span="8" class="text-right">
-              <el-text class=" text-right uSelectNone">{{ fileName }}</el-text>
+              <el-text class="text-right uSelectNone">{{ fileName }}</el-text>
               <!-- <span class="display-input"></span> -->
             </el-col>
           </el-row>
@@ -41,7 +41,9 @@
               <el-col :span="16">
                 <el-row style="padding: 3px 0">
                   <el-col :span="12" class="text">
-                    <el-text class="uSelectNone" for="ratio">Aspect Ratio</el-text>
+                    <el-text class="uSelectNone" for="ratio"
+                      >Aspect Ratio</el-text
+                    >
                   </el-col>
                   <el-col :span="12" class="user-input">
                     <el-select v-model="selectedWord" size="small">
@@ -54,15 +56,18 @@
                   </el-col>
                 </el-row>
 
-                <el-row style="padding: 3px 0;" >
+                <el-row style="padding: 3px 0">
                   <el-col :span="12" class="text">
                     <el-text class="uSelectNone" for="invert_rotate"
                       >Crop Size</el-text
                     >
                   </el-col>
-                  <el-col :span="12" class="user-input" style="padding-right: 9px">
+                  <el-col
+                    :span="12"
+                    class="user-input"
+                    style="padding-right: 9px"
+                  >
                     <el-slider
-                      
                       :show-tooltip="false"
                       id="crop-boost"
                       classs="custom-slider"
@@ -72,27 +77,41 @@
                     />
                   </el-col>
                 </el-row>
-                <el-row style="padding: 3px 0;">
-                  <el-col :span="12" class="text" >
-                    <el-text class="uSelectNone" for="invert_rotate">Invert</el-text>
+                <el-row style="padding: 3px 0">
+                  <el-col :span="12" class="text">
+                    <el-text class="uSelectNone" for="invert_rotate"
+                      >Invert</el-text
+                    >
                   </el-col>
                   <el-col
                     :span="12"
-                    style="display: flex; justify-content: flex-end;"
+                    style="display: flex; justify-content: flex-end"
                     class="user-input"
                   >
                     <el-switch v-model="inverted" size="small" />
                   </el-col>
                 </el-row>
-                <el-row style="padding: 3px 0;">
-                  <el-col :span="24" class="user-input" style="
-                    
-                    display: flex;
-                    justify-content: flex-end;
-                  ">
-                    <el-button class="user-input" size="small" icon="check" round></el-button>
-                    <el-button class="user-input" size="small" icon="refresh" round></el-button>
-                  </el-col> 
+                <el-row style="padding: 3px 0">
+                  <el-col
+                    :span="24"
+                    class="user-input"
+                    style="display: flex; justify-content: flex-end"
+                  >
+                    <el-button
+                      class="user-input"
+                      size="small"
+                      icon="check"
+                      round
+                      @click="emitCropConfirm"
+                    ></el-button>
+                    <el-button
+                      class="user-input"
+                      size="small"
+                      icon="refresh"
+                      @click="changeImageSource(this.originalSource)"
+                      round
+                    ></el-button>
+                  </el-col>
                 </el-row>
               </el-col>
               <!-- style="background-color:red;" -->
@@ -250,6 +269,7 @@ export default {
     return {
       selectedWord: "",
       words: ["original", "1:1", "2:3", "3:4", "4:5"],
+      originalSource: null,
       imageSource: null,
       fileName: "Input Image",
       dupX: 4,
@@ -270,6 +290,10 @@ export default {
     // Set the default selected word to the first element in the words array
     this.selectedWord = this.words[0];
     this.emitImage(require("@/assets/1.png"));
+    eventBus.on("uploadCropSource", this.changeImageSource);
+  },
+  beforeUnmount() {
+    eventBus.off("uploadCropSource", this.changeImageSource);
   },
 
   mounted() {},
@@ -323,24 +347,16 @@ export default {
     previewFiles(event) {
       const file = event.target.files[0];
       if (file) {
-        
         this.file = file;
         if (file.type.startsWith("image/")) {
           this.fileName = this.limitNameLength(file.name, 8);
-          
+
           // console.log('FileReader onload event triggered');
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.imageSource = e.target.result;
-            this.$nextTick(() => {
-              this.selectedWord = this.words[0];
-              this.crop_boost = 10;
-              this.inverted = false;
-              // console.log(reader.result);
-              // console.log('Image source updated:', this.imageSource);
-            });
-
-            this.emitImage(reader.result);
+            this.originalSource = e.target.result;
+            
+            this.changeImageSource(this.originalSource);
           };
 
           reader.readAsDataURL(file);
@@ -355,9 +371,27 @@ export default {
       }
     },
 
+    changeImageSource(source) {
+      this.imageSource = source;
+
+      this.$nextTick(() => {
+        this.selectedWord = this.words[0];
+        this.crop_boost = 10;
+        this.inverted = false;
+        // console.log(reader.result);
+        // console.log('Image source updated:', this.imageSource);
+      });
+
+      this.emitImage(this.imageSource);
+    },
+
     toggleVisibility() {
       this.isTableExpanded = !this.isTableExpanded;
       eventBus.emit("TableExpanded", this.isTableExpanded);
+    },
+
+    emitCropConfirm() {
+      eventBus.emit("CropConfirmed");
     },
 
     emitImage(source) {
@@ -391,7 +425,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 #menu {
   position: fixed;
   left: 0;
@@ -450,8 +483,8 @@ input[type="file"] {
   z-index: 1000; /* Ensure it appears above other elements */
 }
 
-.user-input{
-  padding-right:3px;
+.user-input {
+  padding-right: 3px;
 }
 
 .uSelectNone {
@@ -463,7 +496,6 @@ input[type="file"] {
   margin: auto;
   padding: 0 5px;
 }
-
 
 // #about_img{
 //   background-color: red;

@@ -4,6 +4,7 @@
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
     <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
+    <canvas ref="canvas" style="display: none;"></canvas>
     <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
   </div>
 </template>
@@ -16,9 +17,13 @@ export default {
   name: "GalleryPicture",
 
   created() {
-    
     this.updateImageSource(this.imageSource);
+
     eventBus.on("imageUploaded", this.updateImageSource);
+    eventBus.on("CropConfirmed", this.initiateCropping);
+    // eventBus.on("CropConfirmed", this.cropImage);
+    // this.cropImage
+
     eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
     eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
     eventBus.on("TableExpanded",  this.updatePMaskShow);
@@ -28,6 +33,9 @@ export default {
 
   beforeUnmount() {
     eventBus.off("imageUploaded", this.updateImageSource);
+    eventBus.off("CropConfirmed", this.initiateCropping);
+    // eventBus.on("CropConfirmed", this.cropImage);
+
     eventBus.off("cropPosUploaded", (pos) => this.updateMaskPos(pos));
     eventBus.off("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
     eventBus.off("TableExpanded",  this.updatePMaskShow);
@@ -42,16 +50,11 @@ export default {
       isPreviewMaskShow: false,
       isImageLoad: false,
       imageSource: require("@/assets/1.png"),
+      originalSource: require("@/assets/1.png"),
       helper_calc_pos: {w: 100, h: 100},
       mask_pos: {x: 0 , y: 0},
       mask_dem: {w: 100 , h: 100},
-      // temp_dem: {
-      //   a: 10,
-      //   b: 10,
-      //   c: 10,
-      //   d: 10,
-      // },
-      //   updateImageSource
+
     };
   },
 
@@ -67,10 +70,9 @@ export default {
       this.isPreviewMaskShow = x;
     },
 
-
-    
     updateImageSource(newSource) {
       this.imageSource = newSource;
+      this.originalSource = newSource;
 
       this.$nextTick(() => {
         this.updateMask_C_Size();
@@ -89,6 +91,7 @@ export default {
       
         // mask.style.top = `${image.offsetTop}px`;
         // mask.style.left = `${image.offsetLeft}px`;
+        
       }
     },
 
@@ -107,9 +110,51 @@ export default {
       this.helper_calc_pos.w = imgw;
       this.helper_calc_pos.h = imgh;
 
-      // console.log(wper, hper, imgw, imgh);
+      // console.log(wper, hper, imgw, imgh);`
     },
-    // updateMask
+
+    initiateCropping() {
+
+      var image = this.$refs.image;
+      const mask_c = this.$refs.mask_c;
+
+      const canvas = this.$refs.canvas;
+      const ctx = canvas.getContext('2d');
+
+
+      const originalWidth = image.naturalWidth;
+      const originalHeight = image.naturalHeight;
+
+      // change mask_pos to percentage
+      const pos_x_per =  this.mask_pos.x / (mask_c.clientWidth - this.helper_calc_pos.w);
+      const pos_y_per =  this.mask_pos.y / (mask_c.clientHeight - this.helper_calc_pos.h);
+      
+
+      const originalLeft = originalWidth * pos_x_per;
+      const originalTop = originalHeight * pos_y_per;
+      const originalCropWidth = originalWidth * this.mask_dem.w / 100;
+      const originalCropHeight = originalHeight * this.mask_dem.h / 100;
+      
+
+      console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
+
+      // console.log(croppedCanvas);
+
+      canvas.width = originalCropWidth;
+      canvas.height = originalCropHeight;
+
+      ctx.drawImage(image,
+        originalLeft, originalTop, originalCropWidth, originalCropHeight, // Source rectangle
+        0, 0, originalCropWidth, originalCropHeight // Destination rectangle
+      );
+
+      eventBus.emit("uploadCropSource", canvas.toDataURL('image/jpeg'));
+
+      console.log(canvas.toDataURL('image/jpeg'));
+      // this.croppedImage = canvas.toDataURL('image/jpeg');
+
+      
+    }
   },
 
   computed: {
@@ -132,12 +177,6 @@ export default {
   },
 
   mounted() {
-    // this.updateImageSource(this.imageSource);
-    // eventBus.on("imageUploaded", this.updateImageSource);
-    // eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    // eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
-    // // this.updateImageSource(this.imageSource);
-    // window.addEventListener('resize', this.updateMask_C_Size);
   },
 
 };
