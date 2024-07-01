@@ -17,7 +17,7 @@ export default {
   name: "GalleryPicture",
 
   created() {
-    this.updateImageSource(this.imageSource);
+    // this.updateImageSource(this.imageSource);
 
     eventBus.on("imageUploaded", this.updateImageSource);
     eventBus.on("CropConfirmed", this.initiateCropping);
@@ -50,7 +50,6 @@ export default {
       isPreviewMaskShow: false,
       isImageLoad: false,
       imageSource: require("@/assets/1.png"),
-      originalSource: require("@/assets/1.png"),
       helper_calc_pos: {w: 100, h: 100},
       mask_pos: {x: 0 , y: 0},
       mask_dem: {w: 100 , h: 100},
@@ -71,8 +70,10 @@ export default {
     },
 
     updateImageSource(newSource) {
+      console.log(this.imageSource);
       this.imageSource = newSource;
-      this.originalSource = newSource;
+
+      
 
       this.$nextTick(() => {
         this.updateMask_C_Size();
@@ -126,8 +127,8 @@ export default {
       const originalHeight = image.naturalHeight;
 
       // change mask_pos to percentage
-      const pos_x_per =  this.mask_pos.x / (mask_c.clientWidth - this.helper_calc_pos.w);
-      const pos_y_per =  this.mask_pos.y / (mask_c.clientHeight - this.helper_calc_pos.h);
+      const pos_x_per =  this.mask_pos.x / (mask_c.clientWidth);
+      const pos_y_per =  this.mask_pos.y / (mask_c.clientHeight);
       
 
       const originalLeft = originalWidth * pos_x_per;
@@ -136,7 +137,7 @@ export default {
       const originalCropHeight = originalHeight * this.mask_dem.h / 100;
       
 
-      console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
+      // console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
 
       // console.log(croppedCanvas);
 
@@ -150,8 +151,7 @@ export default {
 
       eventBus.emit("uploadCropSource", canvas.toDataURL('image/jpeg'));
 
-      console.log(canvas.toDataURL('image/jpeg'));
-      // this.croppedImage = canvas.toDataURL('image/jpeg');
+      // console.log(canvas.toDataURL('image/jpeg'));
 
       
     }

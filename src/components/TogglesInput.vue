@@ -2,134 +2,139 @@
   <!-- TODO: bug, the croppreview does not match the sizing -->
   <div>
     <div id="menu">
-      <div id="about_img" class="container">
-        <div class="normal-input">
-          <el-row :gutter="10">
-            <el-col :span="16" style="display: flex">
-              <input
-                id="image-drop"
-                type="file"
-                ref="myFiles"
-                @change="previewFiles"
-              />
-              <el-button circle icon="plus"></el-button>
-              <el-button circle @click="onPickFile" icon="upload"></el-button>
+      <div id="header" class="container" style="margin-bottom:0;">
+        <el-row :gutter="10">
+          <el-col :span="16" style="display: flex">
+            <input
+              id="image-drop"
+              type="file"
+              ref="myFiles"
+              @change="previewFiles"
+            />
+            <el-button circle
+              @click="toggle_t_Visibility"
+              ><el-icon><Menu /></el-icon
+            ></el-button>
+            <el-button circle @click="onPickFile" icon="upload"></el-button>
 
-              <el-button
-                circle
-                @click="toggleVisibility"
-                style="justify-content: space-between"
-                icon="crop"
-                :style="buttonActivateStyle"
-              >
-              </el-button>
+            <el-button
+              circle
+              @click="toggle_sub_t_Visibility"
+              style="justify-content: space-between"
+              icon="crop"
+              :style="buttonActivateStyle"
+            >
+            </el-button>
+          </el-col>
+          <!-- style="background-color: red;" -->
+          <el-col :span="8" class="text-right">
+            <el-text class="text-right uSelectNone">{{ fileName }}</el-text>
+            <!-- <span class="display-input"></span> -->
+          </el-col>
+        </el-row>
+      </div>
+
+      <el-collapse-transition>
+      <div id="about_img" class="container" v-show="isSubTableExpanded"
+      v-if="isSubTableExpanded">    
+          <el-row
+            :gutter="15"
+            id="expand_table"
+            style="margin-top: 10px"
+          >
+            <el-col :span="16">
+              <el-row style="padding: 3px 0">
+                <el-col :span="12" class="text">
+                  <el-text class="uSelectNone" for="ratio"
+                    >Aspect Ratio</el-text
+                  >
+                </el-col>
+                <el-col :span="12" class="user-input">
+                  <el-select v-model="selectedWord" size="small">
+                    <el-option
+                      v-for="word in words"
+                      :key="word"
+                      :value="word"
+                    />
+                  </el-select>
+                </el-col>
+              </el-row>
+
+              <el-row style="padding: 3px 0">
+                <el-col :span="12" class="text">
+                  <el-text class="uSelectNone" for="invert_rotate"
+                    >Crop Size</el-text
+                  >
+                </el-col>
+                <el-col
+                  :span="12"
+                  class="user-input"
+                  style="padding-right: 9px"
+                >
+                  <el-slider
+                    :show-tooltip="false"
+                    id="crop-boost"
+                    classs="custom-slider"
+                    v-model="crop_boost"
+                    :min="3"
+                    :max="10"
+                  />
+                </el-col>
+              </el-row>
+              <el-row style="padding: 3px 0">
+                <el-col :span="12" class="text">
+                  <el-text class="uSelectNone" for="invert_rotate"
+                    >Invert</el-text
+                  >
+                </el-col>
+                <el-col
+                  :span="12"
+                  style="display: flex; justify-content: flex-end"
+                  class="user-input"
+                >
+                  <el-switch v-model="inverted" size="small" />
+                </el-col>
+              </el-row>
+              <el-row style="padding: 3px 0">
+                <el-col
+                  :span="24"
+                  class="user-input"
+                  style="display: flex; justify-content: flex-end"
+                >
+                  <el-button
+                    class="user-input"
+                    size="small"
+                    icon="check"
+                    round
+                    @click="emitCropConfirm"
+                  ></el-button>
+                  <el-button
+                    class="user-input"
+                    size="small"
+                    icon="refresh"
+                    @click="resetImageCrop"
+                    round
+                  ></el-button>
+                </el-col>
+              </el-row>
             </el-col>
-            <!-- style="background-color: red;" -->
-            <el-col :span="8" class="text-right">
-              <el-text class="text-right uSelectNone">{{ fileName }}</el-text>
-              <!-- <span class="display-input"></span> -->
+            <!-- style="background-color:red;" -->
+            <el-col :span="8">
+              <CropPreview
+                :cropSize="parseFloat(processedWord)"
+                :inputSize="parseFloat(input_aspec)"
+                :isInverted="inverted"
+                :scale="parseFloat(crop_boost)"
+                id="cPreview"
+              ></CropPreview>
             </el-col>
           </el-row>
-          <el-collapse-transition>
-            <el-row
-              :gutter="15"
-              id="expand_table"
-              v-show="isTableExpanded"
-              v-if="isTableExpanded"
-              style="margin-top: 10px"
-            >
-              <el-col :span="16">
-                <el-row style="padding: 3px 0">
-                  <el-col :span="12" class="text">
-                    <el-text class="uSelectNone" for="ratio"
-                      >Aspect Ratio</el-text
-                    >
-                  </el-col>
-                  <el-col :span="12" class="user-input">
-                    <el-select v-model="selectedWord" size="small">
-                      <el-option
-                        v-for="word in words"
-                        :key="word"
-                        :value="word"
-                      />
-                    </el-select>
-                  </el-col>
-                </el-row>
-
-                <el-row style="padding: 3px 0">
-                  <el-col :span="12" class="text">
-                    <el-text class="uSelectNone" for="invert_rotate"
-                      >Crop Size</el-text
-                    >
-                  </el-col>
-                  <el-col
-                    :span="12"
-                    class="user-input"
-                    style="padding-right: 9px"
-                  >
-                    <el-slider
-                      :show-tooltip="false"
-                      id="crop-boost"
-                      classs="custom-slider"
-                      v-model="crop_boost"
-                      :min="3"
-                      :max="10"
-                    />
-                  </el-col>
-                </el-row>
-                <el-row style="padding: 3px 0">
-                  <el-col :span="12" class="text">
-                    <el-text class="uSelectNone" for="invert_rotate"
-                      >Invert</el-text
-                    >
-                  </el-col>
-                  <el-col
-                    :span="12"
-                    style="display: flex; justify-content: flex-end"
-                    class="user-input"
-                  >
-                    <el-switch v-model="inverted" size="small" />
-                  </el-col>
-                </el-row>
-                <el-row style="padding: 3px 0">
-                  <el-col
-                    :span="24"
-                    class="user-input"
-                    style="display: flex; justify-content: flex-end"
-                  >
-                    <el-button
-                      class="user-input"
-                      size="small"
-                      icon="check"
-                      round
-                      @click="emitCropConfirm"
-                    ></el-button>
-                    <el-button
-                      class="user-input"
-                      size="small"
-                      icon="refresh"
-                      @click="changeImageSource(this.originalSource)"
-                      round
-                    ></el-button>
-                  </el-col>
-                </el-row>
-              </el-col>
-              <!-- style="background-color:red;" -->
-              <el-col :span="8">
-                <CropPreview
-                  :cropSize="parseFloat(processedWord)"
-                  :inputSize="parseFloat(input_aspec)"
-                  :isInverted="inverted"
-                  :scale="parseFloat(crop_boost)"
-                  id="cPreview"
-                ></CropPreview>
-              </el-col>
-            </el-row>
-          </el-collapse-transition>
-        </div>
       </div>
+      </el-collapse-transition>
       <!-- <el-divider content-position="center"><el-icon><Help /></el-icon></el-divider> -->
-      <div id="basic" class="container">
+      <el-collapse-transition> 
+      <div id="basic" class="container" v-show="isTableExpanded"
+      v-if="isTableExpanded">
         <el-row>
           <el-text class="uSelectNone">Duplicate</el-text>
         </el-row>
@@ -242,11 +247,11 @@
             </el-col>
           </el-col>
         </el-row>
-
-        <!-- size, how many divisions in picture, x-how many line, y-how many line, -->
       </div>
       <div id="output" class="container"></div>
+    </el-collapse-transition>
     </div>
+
   </div>
 </template>
 
@@ -267,11 +272,14 @@ export default {
 
   data() {
     return {
+      originalSource: require("@/assets/1.png"),
+      imageSource: require("@/assets/1.png"),
+
       selectedWord: "",
       words: ["original", "1:1", "2:3", "3:4", "4:5"],
-      originalSource: null,
-      imageSource: null,
+
       fileName: "Input Image",
+
       dupX: 4,
       dupY: 4,
       splitX: 2,
@@ -282,14 +290,16 @@ export default {
       crop_boost: 10,
       inverted: false,
 
-      isTableExpanded: false,
+      isTableExpanded: true,
+      isSubTableExpanded: false,
     };
   },
 
   created() {
     // Set the default selected word to the first element in the words array
     this.selectedWord = this.words[0];
-    this.emitImage(require("@/assets/1.png"));
+    this.changeImageSource(require("@/assets/1.png"));
+    // this.emitImage();
     eventBus.on("uploadCropSource", this.changeImageSource);
   },
   beforeUnmount() {
@@ -316,8 +326,8 @@ export default {
 
     buttonActivateStyle() {
       return {
-        "background-color": this.isTableExpanded ? "black" : "white",
-        color: this.isTableExpanded ? "white" : "#636466",
+        "background-color": this.isSubTableExpanded ? "black" : "white",
+        color: this.isSubTableExpanded ? "white" : "#636466",
         transition: "all 0.3s ease",
       };
     },
@@ -355,7 +365,7 @@ export default {
           const reader = new FileReader();
           reader.onload = (e) => {
             this.originalSource = e.target.result;
-            
+
             this.changeImageSource(this.originalSource);
           };
 
@@ -382,16 +392,25 @@ export default {
         // console.log('Image source updated:', this.imageSource);
       });
 
+      console.log(this.imageSource);
       this.emitImage(this.imageSource);
     },
 
-    toggleVisibility() {
+    toggle_sub_t_Visibility() {
+      this.isSubTableExpanded = !this.isSubTableExpanded;
+      eventBus.emit("TableExpanded", this.isSubTableExpanded);
+    },
+
+    toggle_t_Visibility() {
       this.isTableExpanded = !this.isTableExpanded;
-      eventBus.emit("TableExpanded", this.isTableExpanded);
     },
 
     emitCropConfirm() {
       eventBus.emit("CropConfirmed");
+    },
+
+    resetImageCrop() {
+      this.changeImageSource(this.originalSource);
     },
 
     emitImage(source) {
@@ -402,7 +421,9 @@ export default {
         // eventBus.emit("imageSize", img.width / img.height);
       };
 
-      eventBus.emit("imageUploaded", this.imageSource);
+      console.log(this.imageSource);
+
+      eventBus.emit("imageUploaded", source);
     },
 
     limitNameLength(name, limit) {
@@ -443,6 +464,7 @@ export default {
 
   > div {
     margin-bottom: 5px;
+
 
     &:last-of-type {
       margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
@@ -496,8 +518,4 @@ input[type="file"] {
   margin: auto;
   padding: 0 5px;
 }
-
-// #about_img{
-//   background-color: red;
-// }
 </style>
