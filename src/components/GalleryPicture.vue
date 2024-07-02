@@ -53,7 +53,7 @@ export default {
     return {
       isPreviewMaskShow: false,
       isImageLoad: false,
-
+      
       imageSource: require("@/assets/2.jpg"),
       resultSource: null,
 
