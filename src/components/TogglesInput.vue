@@ -2,7 +2,7 @@
   <!-- TODO: bug, the croppreview does not match the sizing -->
   <div>
     <div id="menu">
-      <div id="header" class="container" style="margin-bottom:0;">
+      <div id="header" class="container" style="margin-bottom: 0">
         <el-row :gutter="10">
           <el-col :span="16" style="display: flex">
             <input
@@ -11,10 +11,6 @@
               ref="myFiles"
               @change="previewFiles"
             />
-            <el-button circle
-              @click="toggle_t_Visibility"
-              ><el-icon><Menu /></el-icon
-            ></el-button>
             <el-button circle @click="onPickFile" icon="upload"></el-button>
 
             <el-button
@@ -25,6 +21,12 @@
               :style="buttonActivateStyle"
             >
             </el-button>
+            <el-button circle @click="toggle_t_Visibility"
+              ><el-icon><Edit /></el-icon
+            ></el-button>
+            <el-button circle @click="toggle_d_t_Visibility"
+              ><el-icon><Download /></el-icon
+            ></el-button>
           </el-col>
           <!-- style="background-color: red;" -->
           <el-col :span="8" class="text-right">
@@ -35,13 +37,13 @@
       </div>
 
       <el-collapse-transition>
-      <div id="about_img" class="container" v-show="isSubTableExpanded"
-      v-if="isSubTableExpanded">    
-          <el-row
-            :gutter="15"
-            id="expand_table"
-            style="margin-top: 10px"
-          >
+        <div
+          id="about_img"
+          class="container"
+          v-show="isSubTableExpanded"
+          v-if="isSubTableExpanded"
+        >
+          <el-row :gutter="15" id="expand_table" style="margin-top: 10px">
             <el-col :span="16">
               <el-row style="padding: 3px 0">
                 <el-col :span="12" class="text">
@@ -129,24 +131,33 @@
               ></CropPreview>
             </el-col>
           </el-row>
-      </div>
+        </div>
       </el-collapse-transition>
       <!-- <el-divider content-position="center"><el-icon><Help /></el-icon></el-divider> -->
-      <el-collapse-transition> 
-      <div id="basic" class="container" v-show="isTableExpanded"
-      v-if="isTableExpanded">
-        <el-row>
-          <el-text class="uSelectNone">Duplicate</el-text>
-        </el-row>
-        <el-row :gutter="5" style="padding-left: 10px">
-          <el-col :span="12" style="display: flex">
-            <el-col :span="4">
-              <el-text class="text uSelectNone" size="small">x</el-text>
+      <el-collapse-transition>
+        <div
+          id="basic"
+          class="container"
+          v-show="isTableExpanded"
+          v-if="isTableExpanded"
+        >
+          <el-row style="margin-top: 10px; margin-bottom: 10px">
+            <el-col :span="6"></el-col>
+            <el-col :span="9" class="text">
+              <el-text class="uSelectNone" size="small">x</el-text>
             </el-col>
-            <el-col :span="20" :style="colCenterStyle">
+            <el-col :span="9" class="text">
+              <el-text class="text uSelectNone" size="small">y</el-text>
+            </el-col>
+          </el-row>
+          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+            <el-col :span="6">
+              <el-text class="uSelectNone">Duplicate</el-text>
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="dupX"
-                :min="1"
+                :min="2"
                 :max="8"
                 size="small"
                 placeholder="x"
@@ -154,15 +165,10 @@
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-col>
-          <el-col :span="12" style="display: flex">
-            <el-col :span="4">
-              <el-text class="text uSelectNone" size="small">y</el-text>
-            </el-col>
-            <el-col :span="20" :style="colCenterStyle">
+            <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="dupY"
-                :min="1"
+                :min="2"
                 :max="8"
                 size="small"
                 placeholder="y"
@@ -170,55 +176,42 @@
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-text class="uSelectNone">Split</el-text>
-        </el-row>
-        <el-row :gutter="5" style="padding-left: 10px">
-          <el-col :span="12" style="display: flex">
-            <el-col :span="4">
-              <el-text class="text uSelectNone" size="small">x</el-text>
+          </el-row>
+          <el-row> </el-row>
+          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+            <el-col :span="6">
+              <el-text class="uSelectNone">Split</el-text>
             </el-col>
-            <el-col :span="20" :style="colCenterStyle">
+            <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitX"
                 :min="2"
-                :max="32"
+                :max="8"
                 size="small"
                 placeholder="x"
                 controls-position="right"
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-col>
-          <el-col :span="12" style="display: flex">
-            <el-col :span="4">
-              <el-text class="text uSelectNone" size="small">y</el-text>
-            </el-col>
-            <el-col :span="20" :style="colCenterStyle">
+            <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitY"
                 :min="2"
-                :max="32"
+                :max="8"
                 size="small"
                 placeholder="y"
                 controls-position="right"
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-col>
-        </el-row>
+          </el-row>
 
-        <el-row>
-          <el-text class="uSelectNone">Offset</el-text>
-        </el-row>
-        <el-row :gutter="5" style="padding-left: 10px">
-          <el-col :span="12" style="display: flex">
-            <el-col :span="4">
-              <el-text class="text uSelectNone" size="small">x</el-text>
+          <el-row> </el-row>
+          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+            <el-col :span="6">
+              <el-text class="uSelectNone">Offset</el-text>
             </el-col>
-            <el-col :span="20" :style="colCenterStyle">
+            <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="offsetX"
                 :min="2"
@@ -229,12 +222,7 @@
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-col>
-          <el-col :span="12" style="display: flex">
-            <el-col :span="4">
-              <el-text class="text uSelectNone" size="small">y</el-text>
-            </el-col>
-            <el-col :span="20" :style="colCenterStyle">
+            <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="offsetY"
                 :min="2"
@@ -245,19 +233,99 @@
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-col>
-        </el-row>
-      </div>
-      <div id="output" class="container"></div>
-    </el-collapse-transition>
-    </div>
+          </el-row>
+          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+            <el-col :span="6">
+              <el-text class="uSelectNone">Invert</el-text>
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle">
+              <el-switch v-model="invtedX" size="medium" />
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle">
+              <el-switch v-model="invtedY" size="medium" />
+            </el-col>
+          </el-row>
 
+          <EditPictures 
+            style="display: none;"
+            :imageSource="imageSource"
+            :duplicate="{x:parseFloat(dupX), y:parseFloat(dupY)}"
+            :split="{x:parseFloat(splitX), y:parseFloat(splitY)}"
+            :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
+            :invert="{x: invtedX, y: invtedY}"
+          >
+
+          </EditPictures>
+        </div>
+      </el-collapse-transition>
+      <el-collapse-transition>
+        <div
+          id="output"
+          class="container"
+          v-show="isResultTExpanded"
+          v-if="isResultTExpanded"
+        >
+          <el-row style="display: flex; margin-top: 5px;">
+            <el-col :span="6" style="margin: auto 0;">
+              <el-text class="uSelectNone">View Model</el-text>
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle">
+              <el-switch
+                v-model="inverted"
+                inline-prompt
+                style="
+                  --el-switch-on-color: #13ce66;
+                  --el-switch-off-color: #ff4949;
+                "
+                active-text="Static"
+                inactive-text="Dynamic"
+              />
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle">
+              <el-radio-group v-model="radio2" class="ml-4">
+                <el-radio value="0" selected>VM-1</el-radio>
+                <el-radio value="1" selected>VM-2</el-radio>
+              </el-radio-group>
+            </el-col>
+
+            <!-- if dynamic, provides 2 view model
+            if static, show or not show -->
+          </el-row>
+          <el-row style="display: flex; margin-top: 5px;">
+            <el-col :span="6" style="margin: auto 0;">
+              <el-text class="uSelectNone">Export</el-text>
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle">
+              <el-switch
+                v-model="inverted"
+                inline-prompt
+                active-text="JPG"
+                inactive-text="PNG"
+              />
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle" style="justify-content: flex-end;">
+              <el-button
+              class="user-input"
+              size="small"
+              icon="check"
+              round
+            ></el-button>
+            </el-col>
+            
+          </el-row>
+          <el-row>
+            
+          </el-row>
+        </div>
+      </el-collapse-transition>
+    </div>
   </div>
 </template>
 
 <script>
 import eventBus from "../util/eventBus";
 import CropPreview from "./crop/CropPreview.vue";
+import EditPictures from "./edit/EditPictures.vue";
 // import 'element-plus/lib/theme-chalk/index.css';
 // import PlusIcon from  './icons/PlusIcon.vue';
 // import { Upload } from '@element-plus/icons-vue';
@@ -267,6 +335,7 @@ export default {
 
   components: {
     CropPreview,
+    EditPictures,
     // PlusIcon,
   },
 
@@ -278,7 +347,7 @@ export default {
       selectedWord: "",
       words: ["original", "1:1", "2:3", "3:4", "4:5"],
 
-      fileName: "Input Image",
+      fileName: "Welcome",
 
       dupX: 4,
       dupY: 4,
@@ -286,12 +355,16 @@ export default {
       splitY: 2,
       offsetX: 0,
       offsetY: 0,
+      invtedX: false,
+      invtedY: false,
+
       input_aspec: 1,
       crop_boost: 10,
       inverted: false,
 
       isTableExpanded: true,
       isSubTableExpanded: false,
+      isResultTExpanded: false,
     };
   },
 
@@ -333,7 +406,7 @@ export default {
     },
     inputNumStyle() {
       return {
-        width: "80%",
+        width: "87%",
         "text-align": "center",
         "align-items": "center",
         "justify-content": "center",
@@ -392,7 +465,7 @@ export default {
         // console.log('Image source updated:', this.imageSource);
       });
 
-      console.log(this.imageSource);
+      // console.log(this.imageSource);
       this.emitImage(this.imageSource);
     },
 
@@ -403,6 +476,9 @@ export default {
 
     toggle_t_Visibility() {
       this.isTableExpanded = !this.isTableExpanded;
+    },
+    toggle_d_t_Visibility() {
+      this.isResultTExpanded = !this.isResultTExpanded;
     },
 
     emitCropConfirm() {
@@ -421,7 +497,7 @@ export default {
         // eventBus.emit("imageSize", img.width / img.height);
       };
 
-      console.log(this.imageSource);
+      // console.log(this.imageSource);
 
       eventBus.emit("imageUploaded", source);
     },
@@ -465,7 +541,6 @@ export default {
   > div {
     margin-bottom: 5px;
 
-
     &:last-of-type {
       margin-bottom: 0; // Remove margin-bottom for the first input (image drop)
     }
@@ -492,7 +567,7 @@ input[type="file"] {
 
 .text {
   // user-select: none;
-  text-align: left;
+  text-align: center;
   margin: auto;
   padding: 0 5px;
 }

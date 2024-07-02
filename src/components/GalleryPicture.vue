@@ -3,7 +3,9 @@
     <div id="mask-container" ref="mask_c" :style="maskCStyles">
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
-    <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
+    <!-- TODO: the sizing for those two images does not match -->
+    <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image" style="opacity:0;"/>
+    <img :src="resultSource" data="Result image" ref="result" :style="resultImgStyles"/>
     <canvas ref="canvas" style="display: none;"></canvas>
     <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
   </div>
@@ -21,24 +23,26 @@ export default {
 
     eventBus.on("imageUploaded", this.updateImageSource);
     eventBus.on("CropConfirmed", this.initiateCropping);
-    // eventBus.on("CropConfirmed", this.cropImage);
-    // this.cropImage
 
     eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
     eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
     eventBus.on("TableExpanded",  this.updatePMaskShow);
-    // this.updateImageSource(this.imageSource);
+
+    eventBus.on("UploadResultImage", this.updateResultSource);
+
     window.addEventListener('resize', this.updateMask_C_Size);
   },
 
   beforeUnmount() {
     eventBus.off("imageUploaded", this.updateImageSource);
     eventBus.off("CropConfirmed", this.initiateCropping);
-    // eventBus.on("CropConfirmed", this.cropImage);
 
     eventBus.off("cropPosUploaded", (pos) => this.updateMaskPos(pos));
     eventBus.off("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
     eventBus.off("TableExpanded",  this.updatePMaskShow);
+
+    eventBus.off("UploadResultImage", this.updateResultSource);
+
     window.removeEventListener('resize', this.updateMask_C_Size);
   },
 
@@ -49,7 +53,10 @@ export default {
     return {
       isPreviewMaskShow: false,
       isImageLoad: false,
+
       imageSource: require("@/assets/1.png"),
+      resultSource: null,
+
       helper_calc_pos: {w: 100, h: 100},
       mask_pos: {x: 0 , y: 0},
       mask_dem: {w: 100 , h: 100},
@@ -70,14 +77,16 @@ export default {
     },
 
     updateImageSource(newSource) {
-      console.log(this.imageSource);
+      // console.log(this.imageSource);
       this.imageSource = newSource;
-
-      
 
       this.$nextTick(() => {
         this.updateMask_C_Size();
       });
+    },
+
+    updateResultSource(newSource) {
+      this.resultSource = newSource;
     },
 
     updateMask_C_Size() {
@@ -137,19 +146,26 @@ export default {
       const originalCropHeight = originalHeight * this.mask_dem.h / 100;
       
 
-      // console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
+      console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
+
+      if(originalCropWidth > 50 && originalCropHeight > 50) {
+        canvas.width = originalCropWidth;
+        canvas.height = originalCropHeight;
+
+        ctx.drawImage(image,
+          originalLeft, originalTop, originalCropWidth, originalCropHeight, // Source rectangle
+          0, 0, originalCropWidth, originalCropHeight // Destination rectangle
+        );
+
+        eventBus.emit("uploadCropSource", canvas.toDataURL('image/jpeg'));
+      } else {
+        alert("The cropped Image can not be smaller than 50 * 50 pixels");
+        
+      }
 
       // console.log(croppedCanvas);
 
-      canvas.width = originalCropWidth;
-      canvas.height = originalCropHeight;
-
-      ctx.drawImage(image,
-        originalLeft, originalTop, originalCropWidth, originalCropHeight, // Source rectangle
-        0, 0, originalCropWidth, originalCropHeight // Destination rectangle
-      );
-
-      eventBus.emit("uploadCropSource", canvas.toDataURL('image/jpeg'));
+      
 
       // console.log(canvas.toDataURL('image/jpeg'));
 
@@ -174,6 +190,17 @@ export default {
         transition: 'opacity 0.3s ease', // Adjust the transition duration and easing as needed
       };
     },
+
+    resultImgStyles() {
+      return {
+        'position': 'absolute',
+        // 'top': '50%',
+        // 'left': '50%',
+        // 'transform': 'translate(-50%, -50%)',
+        'background-color': 'red',
+        opacity: 1,
+      }
+    }
   },
 
   mounted() {
@@ -231,7 +258,7 @@ img {
   width: 50%;
   max-width: 600px;
   height: auto;
-  position: relative;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
