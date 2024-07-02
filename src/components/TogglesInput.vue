@@ -150,7 +150,7 @@
               <el-text class="text uSelectNone" size="small">y</el-text>
             </el-col>
           </el-row>
-          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+          <!-- <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="6">
               <el-text class="uSelectNone">Duplicate</el-text>
             </el-col>
@@ -176,8 +176,7 @@
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-row>
-          <el-row> </el-row>
+          </el-row> -->
           <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="6">
               <el-text class="uSelectNone">Split</el-text>
@@ -185,7 +184,7 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitX"
-                :min="2"
+                :min="1"
                 :max="8"
                 size="small"
                 placeholder="x"
@@ -196,7 +195,7 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitY"
-                :min="2"
+                :min="1"
                 :max="8"
                 size="small"
                 placeholder="y"
@@ -214,7 +213,7 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="offsetX"
-                :min="2"
+                :min="0"
                 :max="32"
                 size="small"
                 placeholder="x"
@@ -225,7 +224,7 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="offsetY"
-                :min="2"
+                :min="0"
                 :max="32"
                 size="small"
                 placeholder="y"
@@ -249,11 +248,18 @@
           <EditPictures 
             style="display: none;"
             :imageSource="imageSource"
-            :duplicate="{x:parseFloat(dupX), y:parseFloat(dupY)}"
             :split="{x:parseFloat(splitX), y:parseFloat(splitY)}"
             :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
             :invert="{x: invtedX, y: invtedY}"
           >
+          <!-- <EditPictures 
+            style="display: none;"
+            :imageSource="imageSource"
+            :duplicate="{x:parseFloat(dupX), y:parseFloat(dupY)}"
+            :split="{x:parseFloat(splitX), y:parseFloat(splitY)}"
+            :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
+            :invert="{x: invtedX, y: invtedY}"
+          ></EditPictures> -->
 
           </EditPictures>
         </div>
@@ -341,8 +347,8 @@ export default {
 
   data() {
     return {
-      originalSource: require("@/assets/1.png"),
-      imageSource: require("@/assets/1.png"),
+      originalSource: require("@/assets/2.jpg"),
+      imageSource: require("@/assets/2.jpg"),
 
       selectedWord: "",
       words: ["original", "1:1", "2:3", "3:4", "4:5"],
@@ -371,7 +377,7 @@ export default {
   created() {
     // Set the default selected word to the first element in the words array
     this.selectedWord = this.words[0];
-    this.changeImageSource(require("@/assets/1.png"));
+    this.changeImageSource(this.originalSource);
     // this.emitImage();
     eventBus.on("uploadCropSource", this.changeImageSource);
   },

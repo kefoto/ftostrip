@@ -4,7 +4,7 @@
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
     <!-- TODO: the sizing for those two images does not match -->
-    <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image" style="opacity:0;"/>
+    <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
     <img :src="resultSource" data="Result image" ref="result" :style="resultImgStyles"/>
     <canvas ref="canvas" style="display: none;"></canvas>
     <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
@@ -54,7 +54,7 @@ export default {
       isPreviewMaskShow: false,
       isImageLoad: false,
 
-      imageSource: require("@/assets/1.png"),
+      imageSource: require("@/assets/2.jpg"),
       resultSource: null,
 
       helper_calc_pos: {w: 100, h: 100},
