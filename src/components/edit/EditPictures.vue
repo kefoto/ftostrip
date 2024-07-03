@@ -17,7 +17,7 @@ export default {
   created() {
     this.checkProps();
 
-    this.debouncedConvert = debounce(this.convertEdit, 600);
+    this.debouncedConvert = debounce(this.convertEdit, 300);
   },
 
   beforeUnmount() {},
@@ -28,6 +28,7 @@ export default {
     checkProps() {
       console.log(
         this.imageSource,
+        this.duplicate,
         this.split,
         this.offset,
         this.invert
@@ -48,6 +49,12 @@ export default {
       const invertX = this.invert.x;
       const invertY = this.invert.y;
 
+      const dupX = this.duplicate.x;
+      const dupY = this.duplicate.y;
+
+      var offsetX = this.offset.x;
+      var offsetY = this.offset.y;
+
 
       image.onload = function () {
         const imgWidth = image.width;
@@ -56,21 +63,24 @@ export default {
         canvas.width = imgWidth;
         canvas.height = imgHeight;
 
+        
         // const colWidth = imgWidth / splitX;
         // const rowHeight = imgHeight / splitY;
 
-        const colWidth = imgWidth / splitX;
-        const rowHeight = imgHeight / splitY;
+        const colWidth = imgWidth / dupX;
+        const rowHeight = imgHeight / dupY;
         
-        // for (let di = 0; di < dupX; di++) {
-        //     for (let dj = 0; dj < dupY; dj++) {
-        //         ctx.drawImage(image, 0, 0, imgWidth, imgHeight, di * colWidth, dj * rowHeight, colWidth, rowHeight);
-        //     }
-        // }
+
+        offsetX = offsetX / 10 * colWidth;
+        offsetY = offsetY / 10 * rowHeight;
+        
+        // console.log(offsetX, offsetY);
 
 
         for (let i = 0; i < splitX; i++) {
           for (let j = 0; j < splitY; j++) {
+            // const sx = i * colWidth + offsetX;
+            // const sy = j * rowHeight + offsetY;
             const sx = i * colWidth;
             const sy = j * rowHeight;
             const dx = i * colWidth;
@@ -90,10 +100,25 @@ export default {
                 let flipHorizontally = invertX && (di % 2 === 1);
                 let flipVertically = invertY && (dj % 2 === 1);
 
+                // let flipHorizontally = (di % 2 === 1);
+                // let flipVertically = (dj % 2 === 1);
+
+                
+
+                // if ((di % 2 === 1) && (dj % 2 === 1)){
+
+                // } else if (di % 2 === 1) {
+
+                // } else if (dj % 2 === 1) {
+
+                // } else {
+
+                // }
                 if (flipHorizontally && flipVertically) {
                     ctx.translate(destX + scaledWidth, destY + scaledHeight);
                     ctx.scale(-1, -1);
                     ctx.drawImage(image, sx, sy, colWidth, rowHeight, 0, 0, scaledWidth, scaledHeight);
+
                 } else if (flipHorizontally) {
                     ctx.translate(destX + scaledWidth, 0); // Move origin to the right edge
                     ctx.scale(-1, 1); // Flip horizontally
@@ -104,11 +129,12 @@ export default {
                         sy,
                         colWidth,
                         rowHeight,
-                        0, // Draw at the translated origin
+                        0, 
                         destY,
                         scaledWidth,
                         scaledHeight
                     );
+                
                 } else if (flipVertically) {
                     ctx.translate(0, destY + scaledHeight); // Move origin to the right edge
                     ctx.scale(1, -1);
@@ -124,6 +150,8 @@ export default {
                         scaledWidth,
                         scaledHeight
                     );
+
+                   
                 } else {
                     ctx.drawImage(
                         image,
@@ -136,30 +164,34 @@ export default {
                         scaledWidth,
                         scaledHeight
                     );
+
+                
                 }
                 // Restore the canvas state
                 ctx.restore();
 
-                // ctx.drawImage(
-                //   image,
-                //   sx,
-                //   sy,
-                //   imgWidth,
-                //   imgHeight,
-                //   destX,
-                //   destY,
-                //   colWidth,
-                //   rowHeight
-                // );
               }
             }
           }
         }
-        // console.log(canvas.toDataURL("image/jpeg"));
         
         // Provide the result image
         eventBus.emit("UploadResultImage", canvas.toDataURL("image/jpeg"));
       };
+    },
+
+    fillOffset(ctx, offsetX, offsetY, image, sx, sy, colWidth, rowHeight, destX, destY, scaledWidth, scaledHeight) {
+        if (offsetX > 0) {
+            ctx.drawImage(image, sx - colWidth, sy, colWidth, rowHeight, destX - scaledWidth, destY, scaledWidth, scaledHeight);
+        } else if (offsetX < 0) {
+            ctx.drawImage(image, sx + colWidth, sy, colWidth, rowHeight, destX + scaledWidth, destY, scaledWidth, scaledHeight);
+        }
+
+        if (offsetY > 0) {
+            ctx.drawImage(image, sx, sy - rowHeight, colWidth, rowHeight, destX, destY - scaledHeight, scaledWidth, scaledHeight);
+        } else if (offsetY < 0) {
+            ctx.drawImage(image, sx, sy + rowHeight, colWidth, rowHeight, destX, destY + scaledHeight, scaledWidth, scaledHeight);
+        }
     },
   },
   props: {
@@ -179,10 +211,10 @@ export default {
       type: Object,
       required: true,
     },
-    // duplicate: {
-    //   type: Object,
-    //   required: true,
-    // },
+    duplicate: {
+      type: Object,
+      required: true,
+    },
   },
 
   watch: {

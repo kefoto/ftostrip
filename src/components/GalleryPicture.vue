@@ -5,7 +5,9 @@
     </div>
     <!-- TODO: the sizing for those two images does not match -->
     <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
-    <img :src="resultSource" data="Result image" ref="result" :style="resultImgStyles"/>
+
+    <img :src="resultSource" data="Result image" ref="result" :style="resultImgStyles" />
+
     <canvas ref="canvas" style="display: none;"></canvas>
     <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
   </div>
@@ -30,6 +32,8 @@ export default {
 
     eventBus.on("UploadResultImage", this.updateResultSource);
 
+    eventBus.on("ResultVisibility", this.updateResultShow);
+
     window.addEventListener('resize', this.updateMask_C_Size);
   },
 
@@ -43,6 +47,8 @@ export default {
 
     eventBus.off("UploadResultImage", this.updateResultSource);
 
+    eventBus.off("ResultVisibility", this.updateResultShow);
+
     window.removeEventListener('resize', this.updateMask_C_Size);
   },
 
@@ -52,8 +58,10 @@ export default {
   data() {
     return {
       isPreviewMaskShow: false,
+      isResultShow: true,
       isImageLoad: false,
       
+
       imageSource: require("@/assets/2.jpg"),
       resultSource: null,
 
@@ -74,6 +82,10 @@ export default {
 
     updatePMaskShow(x) {
       this.isPreviewMaskShow = x;
+    },
+
+    updateResultShow(x) {
+      this.isResultShow = x;
     },
 
     updateImageSource(newSource) {
@@ -198,7 +210,8 @@ export default {
         // 'left': '50%',
         // 'transform': 'translate(-50%, -50%)',
         'background-color': 'red',
-        opacity: 1,
+        opacity: this.isResultShow ? 1 : 0,
+        transition: 'opacity 0.3s ease',
       }
     }
   },
@@ -255,7 +268,7 @@ export default {
 }
 
 img {
-  width: 50%;
+  width: 40%;
   max-width: 600px;
   height: auto;
   position: absolute;

@@ -101,7 +101,7 @@
                 <el-col
                   :span="24"
                   class="user-input"
-                  style="display: flex; justify-content: flex-end"
+                  style="display: flex; justify-content: flex-start"
                 >
                   <el-button
                     class="user-input"
@@ -141,7 +141,7 @@
           v-show="isTableExpanded"
           v-if="isTableExpanded"
         >
-          <el-row style="margin-top: 10px; margin-bottom: 10px">
+          <!-- <el-row style="margin-top: 10px; margin-bottom: 10px">
             <el-col :span="6"></el-col>
             <el-col :span="9" class="text">
               <el-text class="uSelectNone" size="small">x</el-text>
@@ -149,16 +149,16 @@
             <el-col :span="9" class="text">
               <el-text class="text uSelectNone" size="small">y</el-text>
             </el-col>
-          </el-row>
-          <!-- <el-row :gutter="5" style="display: flex; margin-top: 5px">
+          </el-row> -->
+          <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="6">
               <el-text class="uSelectNone">Duplicate</el-text>
             </el-col>
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="dupX"
-                :min="2"
-                :max="8"
+                :min="1"
+                :max="12"
                 size="small"
                 placeholder="x"
                 controls-position="right"
@@ -168,15 +168,15 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="dupY"
-                :min="2"
-                :max="8"
+                :min="1"
+                :max="12"
                 size="small"
                 placeholder="y"
                 controls-position="right"
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-row> -->
+          </el-row>
           <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="6">
               <el-text class="uSelectNone">Split</el-text>
@@ -184,8 +184,8 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitX"
-                :min="1"
-                :max="8"
+                :min="dupX"
+                :max="12"
                 size="small"
                 placeholder="x"
                 controls-position="right"
@@ -195,8 +195,8 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitY"
-                :min="1"
-                :max="8"
+                :min="dupY"
+                :max="12"
                 size="small"
                 placeholder="y"
                 controls-position="right"
@@ -213,8 +213,8 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="offsetX"
-                :min="0"
-                :max="32"
+                :min="-10"
+                :max="10"
                 size="small"
                 placeholder="x"
                 controls-position="right"
@@ -224,8 +224,8 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="offsetY"
-                :min="0"
-                :max="32"
+                :min="-10"
+                :max="10"
                 size="small"
                 placeholder="y"
                 controls-position="right"
@@ -244,24 +244,34 @@
               <el-switch v-model="invtedY" size="medium" />
             </el-col>
           </el-row>
+          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+            <el-col :span="24" :style="colCenterStyle" style="justify-content: flex-end;">
+              <el-button
+              class="user-input"
+              size="small"
+              icon="check"
+              circle
+            ></el-button>
+            </el-col>
+          </el-row>
 
-          <EditPictures 
+          <!-- <EditPictures 
             style="display: none;"
             :imageSource="imageSource"
             :split="{x:parseFloat(splitX), y:parseFloat(splitY)}"
             :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
             :invert="{x: invtedX, y: invtedY}"
-          >
-          <!-- <EditPictures 
+          > -->
+          <EditPictures 
             style="display: none;"
             :imageSource="imageSource"
             :duplicate="{x:parseFloat(dupX), y:parseFloat(dupY)}"
             :split="{x:parseFloat(splitX), y:parseFloat(splitY)}"
             :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
             :invert="{x: invtedX, y: invtedY}"
-          ></EditPictures> -->
+          ></EditPictures>
 
-          </EditPictures>
+          <!-- </EditPictures> -->
         </div>
       </el-collapse-transition>
       <el-collapse-transition>
@@ -277,7 +287,7 @@
             </el-col>
             <el-col :span="9" :style="colCenterStyle">
               <el-switch
-                v-model="inverted"
+                v-model="isStatic"
                 inline-prompt
                 style="
                   --el-switch-on-color: #13ce66;
@@ -285,13 +295,34 @@
                 "
                 active-text="Static"
                 inactive-text="Dynamic"
+                
               />
             </el-col>
-            <el-col :span="9" :style="colCenterStyle">
-              <el-radio-group v-model="radio2" class="ml-4">
-                <el-radio value="0" selected>VM-1</el-radio>
-                <el-radio value="1" selected>VM-2</el-radio>
-              </el-radio-group>
+            <!-- <transition name="el-fade-in">
+              
+            </transition> -->
+            <el-col :span="9" :style="colCenterStyle" v-if="isStatic">
+              <el-switch
+                v-model="isResultShow"
+                inline-prompt
+                style="
+                  --el-switch-on-color: #13ce66;
+                  --el-switch-off-color: #ff4949;
+                "
+                active-text="Show"
+                inactive-text="Hide"
+
+              />
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle" v-else>
+              <el-switch
+                v-model="isViewModel"
+                inline-prompt
+
+                active-text="VM-1"
+                inactive-text="VM-2"
+
+              />
             </el-col>
 
             <!-- if dynamic, provides 2 view model
@@ -314,7 +345,7 @@
               class="user-input"
               size="small"
               icon="check"
-              round
+              circle
             ></el-button>
             </el-col>
             
@@ -368,9 +399,16 @@ export default {
       crop_boost: 10,
       inverted: false,
 
+      isStatic: true,
+      isResultShow: true,
+      isViewModel: true,
+      radio2: 0,
+
       isTableExpanded: true,
       isSubTableExpanded: false,
       isResultTExpanded: false,
+
+
     };
   },
 
@@ -508,6 +546,21 @@ export default {
       eventBus.emit("imageUploaded", source);
     },
 
+    emitResultShow(x) {
+      eventBus.emit("ResultVisibility", x);
+    },
+    emitViewModel(x) {
+      eventBus.emit("ViewModelVisibility", x);
+    },    
+
+    resetInputs(isStatic) {
+      if (isStatic) {
+        this.isViewModel = true; // Reset radio group to default value
+      } else {
+        this.isResultShow = true; // Reset result show switch
+      }
+    },
+
     limitNameLength(name, limit) {
       if (name.length > limit) {
         var truncatedName = name.slice(0, limit); // Get the first 'limit' characters
@@ -516,14 +569,27 @@ export default {
       return name;
     },
   },
+  watch: {
+    isStatic(newVal) {
+      this.resetInputs(newVal);
+    },
 
-  // computed: {
-  //   cPreviewStyles(){
-  //     return {
-  //       width:
-  //     }
-  //   }
-  // }
+    isResultShow(newVal) {
+      this.emitResultShow(newVal);
+    },
+
+    isViewModel(newVal) {
+      this.emitViewModel(newVal);
+    },
+
+    //TODO: this might be wrong
+    isSubTableExpanded() {
+      if (this.isResultShow == true){
+        this.isResultShow = false;
+      }
+    }
+  },
+
 };
 </script>
 
@@ -573,13 +639,12 @@ input[type="file"] {
 
 .text {
   // user-select: none;
-  text-align: center;
+  text-align: left;
   margin: auto;
   padding: 0 5px;
 }
 
 .el-upload-list {
-  /* Adjust the position as needed */
   position: absolute;
   top: 10px; /* Example: move 10px from the top */
   left: 10px; /* Example: move 10px from the left */
