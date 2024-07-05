@@ -18,15 +18,24 @@
               @click="toggle_sub_t_Visibility"
               style="justify-content: space-between"
               icon="crop"
-              :style="buttonActivateStyle"
+              :class="{'activated': isSubTableExpanded}"
             >
             </el-button>
+            <!-- <el-button
+              circle
+              @click="toggle_sub_t_Visibility"
+              style="justify-content: space-between"
+              icon="crop"
+              :style="buttonActivateStyle"
+            >
+            </el-button> -->
             <el-button circle @click="toggle_t_Visibility"
               ><el-icon><Edit /></el-icon
             ></el-button>
             <el-button circle @click="toggle_d_t_Visibility"
-              ><el-icon><Download /></el-icon
-            ></el-button>
+            
+              ><el-icon><MoreFilled /></el-icon>
+            </el-button>
           </el-col>
           <!-- style="background-color: red;" -->
           <el-col :span="8" class="text-right">
@@ -184,7 +193,7 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitX"
-                :min="dupX"
+                :min="1"
                 :max="12"
                 size="small"
                 placeholder="x"
@@ -195,7 +204,7 @@
             <el-col :span="9" :style="colCenterStyle">
               <el-input-number
                 v-model="splitY"
-                :min="dupY"
+                :min="1"
                 :max="12"
                 size="small"
                 placeholder="y"
@@ -204,9 +213,7 @@
               />
             </el-col>
           </el-row>
-
-          <el-row> </el-row>
-          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+          <!-- <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="6">
               <el-text class="uSelectNone">Offset</el-text>
             </el-col>
@@ -232,19 +239,19 @@
                 :style="inputNumStyle"
               />
             </el-col>
-          </el-row>
+          </el-row> -->
           <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="6">
               <el-text class="uSelectNone">Invert</el-text>
             </el-col>
             <el-col :span="9" :style="colCenterStyle">
-              <el-switch v-model="invtedX" size="medium" />
+              <el-switch v-model="invtedX" />
             </el-col>
             <el-col :span="9" :style="colCenterStyle">
-              <el-switch v-model="invtedY" size="medium" />
+              <el-switch v-model="invtedY" />
             </el-col>
           </el-row>
-          <el-row :gutter="5" style="display: flex; margin-top: 5px">
+          <!-- <el-row :gutter="5" style="display: flex; margin-top: 5px">
             <el-col :span="24" :style="colCenterStyle" style="justify-content: flex-end;">
               <el-button
               class="user-input"
@@ -253,7 +260,7 @@
               circle
             ></el-button>
             </el-col>
-          </el-row>
+          </el-row> -->
 
           <!-- <EditPictures 
             style="display: none;"
@@ -262,18 +269,16 @@
             :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
             :invert="{x: invtedX, y: invtedY}"
           > -->
-          <EditPictures 
+          
+        </div>
+      </el-collapse-transition>
+      <EditPictures 
             style="display: none;"
             :imageSource="imageSource"
             :duplicate="{x:parseFloat(dupX), y:parseFloat(dupY)}"
             :split="{x:parseFloat(splitX), y:parseFloat(splitY)}"
-            :offset="{x:parseFloat(offsetX), y:parseFloat(offsetY)}"
             :invert="{x: invtedX, y: invtedY}"
           ></EditPictures>
-
-          <!-- </EditPictures> -->
-        </div>
-      </el-collapse-transition>
       <el-collapse-transition>
         <div
           id="output"
@@ -287,23 +292,32 @@
             </el-col>
             <el-col :span="9" :style="colCenterStyle">
               <el-switch
-                v-model="isStatic"
+                v-model="isDynamic"
                 inline-prompt
                 style="
                   --el-switch-on-color: #13ce66;
-                  --el-switch-off-color: #ff4949;
                 "
-                active-text="Static"
-                inactive-text="Dynamic"
-                
+                active-text="Dynamic"
+                inactive-text="Static"
               />
             </el-col>
             <!-- <transition name="el-fade-in">
               
             </transition> -->
-            <el-col :span="9" :style="colCenterStyle" v-if="isStatic">
+            <el-col :span="9" :style="colCenterStyle" v-if="isDynamic">
+              <el-switch
+                v-model="isViewModel"
+                inline-prompt
+
+                active-text="VM-1"
+                inactive-text="VM-2"
+
+              />
+            </el-col>
+            <el-col :span="9" :style="colCenterStyle" v-else>
               <el-switch
                 v-model="isResultShow"
+              
                 inline-prompt
                 style="
                   --el-switch-on-color: #13ce66;
@@ -313,16 +327,7 @@
                 inactive-text="Hide"
 
               />
-            </el-col>
-            <el-col :span="9" :style="colCenterStyle" v-else>
-              <el-switch
-                v-model="isViewModel"
-                inline-prompt
-
-                active-text="VM-1"
-                inactive-text="VM-2"
-
-              />
+              
             </el-col>
 
             <!-- if dynamic, provides 2 view model
@@ -334,7 +339,7 @@
             </el-col>
             <el-col :span="9" :style="colCenterStyle">
               <el-switch
-                v-model="inverted"
+                v-model="isExportJPG"
                 inline-prompt
                 active-text="JPG"
                 inactive-text="PNG"
@@ -343,8 +348,8 @@
             <el-col :span="9" :style="colCenterStyle" style="justify-content: flex-end;">
               <el-button
               class="user-input"
-              size="small"
-              icon="check"
+              @click="emitDownloadResult"
+              icon="download"
               circle
             ></el-button>
             </el-col>
@@ -363,6 +368,9 @@
 import eventBus from "../util/eventBus";
 import CropPreview from "./crop/CropPreview.vue";
 import EditPictures from "./edit/EditPictures.vue";
+
+import { ElNotification } from 'element-plus'
+
 // import 'element-plus/lib/theme-chalk/index.css';
 // import PlusIcon from  './icons/PlusIcon.vue';
 // import { Upload } from '@element-plus/icons-vue';
@@ -390,8 +398,7 @@ export default {
       dupY: 4,
       splitX: 2,
       splitY: 2,
-      offsetX: 0,
-      offsetY: 0,
+
       invtedX: false,
       invtedY: false,
 
@@ -399,10 +406,11 @@ export default {
       crop_boost: 10,
       inverted: false,
 
-      isStatic: true,
+      isDynamic: true,
       isResultShow: true,
       isViewModel: true,
-      radio2: 0,
+      // radio2: 0,
+      isExportJPG: true,
 
       isTableExpanded: true,
       isSubTableExpanded: false,
@@ -418,6 +426,8 @@ export default {
     this.changeImageSource(this.originalSource);
     // this.emitImage();
     eventBus.on("uploadCropSource", this.changeImageSource);
+
+    // this.emitResultShow(true);
   },
   beforeUnmount() {
     eventBus.off("uploadCropSource", this.changeImageSource);
@@ -472,6 +482,8 @@ export default {
     },
 
     previewFiles(event) {
+      console.log("previewFiles Called");
+
       const file = event.target.files[0];
       if (file) {
         this.file = file;
@@ -489,7 +501,11 @@ export default {
           reader.readAsDataURL(file);
         } else {
           // this.imageSource = "";
-          alert("Please select an image file.");
+          ElNotification({
+          title: "Error",
+          message: "Please select an image file (JPG or PNG).",
+          type: "error",
+          });
         }
 
         event.target.value = null;
@@ -499,6 +515,9 @@ export default {
     },
 
     changeImageSource(source) {
+
+      console.log("changeImageSource Called");
+
       this.imageSource = source;
 
       this.$nextTick(() => {
@@ -509,7 +528,6 @@ export default {
         // console.log('Image source updated:', this.imageSource);
       });
 
-      // console.log(this.imageSource);
       this.emitImage(this.imageSource);
     },
 
@@ -533,7 +551,14 @@ export default {
       this.changeImageSource(this.originalSource);
     },
 
+    emitDownloadResult() {
+      eventBus.emit("DownloadConfirmed", this.isExportJPG);
+    },
+
     emitImage(source) {
+
+      console.log("emitImage Called");
+      
       var img = new Image();
       img.src = source;
       img.onload = () => {
@@ -553,8 +578,8 @@ export default {
       eventBus.emit("ViewModelVisibility", x);
     },    
 
-    resetInputs(isStatic) {
-      if (isStatic) {
+    resetInputs(isDynamic) {
+      if (isDynamic) {
         this.isViewModel = true; // Reset radio group to default value
       } else {
         this.isResultShow = true; // Reset result show switch
@@ -570,7 +595,7 @@ export default {
     },
   },
   watch: {
-    isStatic(newVal) {
+    isDynamic(newVal) {
       this.resetInputs(newVal);
     },
 
@@ -602,7 +627,7 @@ export default {
   width: 30%;
   min-width: 400px;
   backdrop-filter: blur(5px);
-  background-color: rgba(230, 237, 226, 0.3);
+  background-color: rgba(215, 227, 208, 0.3);
   border-radius: 13px;
 
   margin: 10px;

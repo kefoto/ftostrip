@@ -2,16 +2,20 @@
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <TogglesInput ></TogglesInput>
   <GalleryPicture id="gp"></GalleryPicture>
+  <InfoHeader></InfoHeader>
 </template>
 
 <script>
 import TogglesInput from './components/TogglesInput.vue'
 import GalleryPicture from './components/GalleryPicture';
+import InfoHeader from './components/InfoHeader.vue'
+
 export default {
   name: 'App',
   components: {
     TogglesInput,
-    GalleryPicture
+    GalleryPicture,
+    InfoHeader
   }
 }
 </script>

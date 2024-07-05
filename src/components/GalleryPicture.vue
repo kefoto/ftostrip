@@ -4,17 +4,28 @@
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
     <!-- TODO: the sizing for those two images does not match -->
-    <img :src="imageSource" @load="updateMask_C_Size" data="Current image" ref="image"/>
+    <img
+      :src="imageSource"
+      @load="updateMask_C_Size"
+      data="Current image"
+      ref="image"
+    />
 
-    <img :src="resultSource" data="Result image" ref="result" :style="resultImgStyles" />
+    <img
+      :src="resultSource"
+      data="Result image"
+      ref="result"
+      :style="resultImgStyles"
+    />
 
-    <canvas ref="canvas" style="display: none;"></canvas>
+    <canvas ref="canvas" style="display: none"></canvas>
     <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
   </div>
 </template>
 
 <script>
 import eventBus from "../util/eventBus";
+import { ElNotification } from "element-plus";
 // import Cropper from "cropperjs";
 // import {imageSource} from "./TogglesInput.vue"
 export default {
@@ -27,14 +38,21 @@ export default {
     eventBus.on("CropConfirmed", this.initiateCropping);
 
     eventBus.on("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.on("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
-    eventBus.on("TableExpanded",  this.updatePMaskShow);
+    eventBus.on("cropInfoUploaded", (dem) =>
+      this.updateMaskDem(dem.a, dem.b, dem.c, dem.d)
+    );
+    eventBus.on("TableExpanded", this.updatePMaskShow);
 
     eventBus.on("UploadResultImage", this.updateResultSource);
 
     eventBus.on("ResultVisibility", this.updateResultShow);
+    // eventBus.on("ViewModelVisibility", x);
 
-    window.addEventListener('resize', this.updateMask_C_Size);
+    eventBus.on("DownloadConfirmed", this.downloadResultImage);
+
+    // this.isResultShow = true;
+
+    window.addEventListener("resize", this.updateMask_C_Size);
   },
 
   beforeUnmount() {
@@ -42,38 +60,39 @@ export default {
     eventBus.off("CropConfirmed", this.initiateCropping);
 
     eventBus.off("cropPosUploaded", (pos) => this.updateMaskPos(pos));
-    eventBus.off("cropInfoUploaded", (dem) => this.updateMaskDem(dem.a, dem.b, dem.c, dem.d));
-    eventBus.off("TableExpanded",  this.updatePMaskShow);
+    eventBus.off("cropInfoUploaded", (dem) =>
+      this.updateMaskDem(dem.a, dem.b, dem.c, dem.d)
+    );
+    eventBus.off("TableExpanded", this.updatePMaskShow);
 
     eventBus.off("UploadResultImage", this.updateResultSource);
 
     eventBus.off("ResultVisibility", this.updateResultShow);
+    // eventBus.off("ViewModelVisibility", x);
 
-    window.removeEventListener('resize', this.updateMask_C_Size);
+    eventBus.off("DownloadConfirmed", this.downloadResultImage);
+
+    window.removeEventListener("resize", this.updateMask_C_Size);
   },
 
-  props: {
-  },
+  props: {},
 
   data() {
     return {
       isPreviewMaskShow: false,
       isResultShow: true,
       isImageLoad: false,
-      
 
       imageSource: require("@/assets/2.jpg"),
       resultSource: null,
 
-      helper_calc_pos: {w: 100, h: 100},
-      mask_pos: {x: 0 , y: 0},
-      mask_dem: {w: 100 , h: 100},
-
+      helper_calc_pos: { w: 100, h: 100 },
+      mask_pos: { x: 0, y: 0 },
+      mask_dem: { w: 100, h: 100 },
     };
   },
 
-  watch: {
-  },
+  watch: {},
 
   methods: {
     imageLoaded() {
@@ -89,12 +108,14 @@ export default {
     },
 
     updateImageSource(newSource) {
+      console.log("updateImageSource Called");
+
       // console.log(this.imageSource);
       this.imageSource = newSource;
 
-      this.$nextTick(() => {
-        this.updateMask_C_Size();
-      });
+      // this.$nextTick(() => {
+      //   this.updateMask_C_Size();
+      // });
     },
 
     updateResultSource(newSource) {
@@ -102,6 +123,8 @@ export default {
     },
 
     updateMask_C_Size() {
+      console.log("updateMask_C_Size Called");
+
       const image = this.$refs.image;
       const mask_c = this.$refs.mask_c;
       // const mask = this.$refs.mask;
@@ -110,17 +133,16 @@ export default {
         mask_c.style.height = `${image.clientHeight}px`;
         // mask.style.width = `${image.clientWidth}px`;
         // mask.style.height = `${image.clientHeight}px`;
-      
+
         // mask.style.top = `${image.offsetTop}px`;
         // mask.style.left = `${image.offsetLeft}px`;
-        
       }
     },
 
     updateMaskPos(pos) {
       const mask_c = this.$refs.mask_c;
-      this.mask_pos.x = mask_c.clientWidth * pos.x / this.helper_calc_pos.w;
-      this.mask_pos.y = mask_c.clientHeight * pos.y / this.helper_calc_pos.h;
+      this.mask_pos.x = (mask_c.clientWidth * pos.x) / this.helper_calc_pos.w;
+      this.mask_pos.y = (mask_c.clientHeight * pos.y) / this.helper_calc_pos.h;
 
       // console.log(pos);
     },
@@ -136,53 +158,76 @@ export default {
     },
 
     initiateCropping() {
+      console.log("initiateCropping Called");
 
       var image = this.$refs.image;
       const mask_c = this.$refs.mask_c;
 
       const canvas = this.$refs.canvas;
-      const ctx = canvas.getContext('2d');
-
+      const ctx = canvas.getContext("2d");
 
       const originalWidth = image.naturalWidth;
       const originalHeight = image.naturalHeight;
 
       // change mask_pos to percentage
-      const pos_x_per =  this.mask_pos.x / (mask_c.clientWidth);
-      const pos_y_per =  this.mask_pos.y / (mask_c.clientHeight);
-      
+      const pos_x_per = this.mask_pos.x / mask_c.clientWidth;
+      const pos_y_per = this.mask_pos.y / mask_c.clientHeight;
 
       const originalLeft = originalWidth * pos_x_per;
       const originalTop = originalHeight * pos_y_per;
-      const originalCropWidth = originalWidth * this.mask_dem.w / 100;
-      const originalCropHeight = originalHeight * this.mask_dem.h / 100;
-      
+      const originalCropWidth = (originalWidth * this.mask_dem.w) / 100;
+      const originalCropHeight = (originalHeight * this.mask_dem.h) / 100;
 
-      console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
+      // console.log(originalLeft, originalTop, originalCropWidth, originalCropHeight);
 
-      if(originalCropWidth > 50 && originalCropHeight > 50) {
+      if (originalCropWidth > 50 && originalCropHeight > 50) {
         canvas.width = originalCropWidth;
         canvas.height = originalCropHeight;
 
-        ctx.drawImage(image,
-          originalLeft, originalTop, originalCropWidth, originalCropHeight, // Source rectangle
-          0, 0, originalCropWidth, originalCropHeight // Destination rectangle
+        ctx.drawImage(
+          image,
+          originalLeft,
+          originalTop,
+          originalCropWidth,
+          originalCropHeight, // Source rectangle
+          0,
+          0,
+          originalCropWidth,
+          originalCropHeight // Destination rectangle
         );
 
-        eventBus.emit("uploadCropSource", canvas.toDataURL('image/jpeg'));
+        eventBus.emit("uploadCropSource", canvas.toDataURL("image/jpeg"));
       } else {
-        alert("The cropped Image can not be smaller than 50 * 50 pixels");
-        
+        ElNotification({
+          title: "Error",
+          message: "The cropped Image can not be smaller than 50 * 50 pixels",
+          type: "error",
+        });
+      }
+    },
+
+    downloadResultImage(isJPG) {
+      if (!this.resultSource) {
+        ElNotification({
+          title: "Error",
+          message: "No result image to download",
+          type: "error",
+        });
+        return;
       }
 
-      // console.log(croppedCanvas);
+      const link = document.createElement("a");
+      link.href = this.resultSource;
 
-      
-
-      // console.log(canvas.toDataURL('image/jpeg'));
-
-      
-    }
+      if (isJPG) {
+        link.download = "result_image.jpg"; // or .png, depending on the format you prefer
+      } else {
+        link.download = "result_image.png";
+      }
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
   },
 
   computed: {
@@ -193,32 +238,29 @@ export default {
 
         left: this.mask_pos.x + "px",
         top: this.mask_pos.y + "px",
-      }
-
+      };
     },
     maskCStyles() {
       return {
         opacity: this.isPreviewMaskShow ? 1 : 0,
-        transition: 'opacity 0.3s ease', // Adjust the transition duration and easing as needed
+        transition: "opacity 0.3s ease", // Adjust the transition duration and easing as needed
       };
     },
 
     resultImgStyles() {
       return {
-        'position': 'absolute',
+        position: "absolute",
         // 'top': '50%',
         // 'left': '50%',
         // 'transform': 'translate(-50%, -50%)',
-        'background-color': 'red',
+        "background-color": "red",
         opacity: this.isResultShow ? 1 : 0,
-        transition: 'opacity 0.3s ease',
-      }
-    }
+        transition: "opacity 0.3s ease",
+      };
+    },
   },
 
-  mounted() {
-  },
-
+  mounted() {},
 };
 </script>
 
@@ -252,18 +294,16 @@ export default {
   max-width: 600px;
   // object-fit: cover;
 
-
-  .mask{
+  .mask {
     position: relative;
     background-color: rgb(232, 15, 15);
-    opacity: 0.4;
+    opacity: 0.3;
 
     transition: all 1s ease;
     // left: 10px;
     // top: 10px;
     // z-index: 1;
     // border: 1px solid white;
-    
   }
 }
 

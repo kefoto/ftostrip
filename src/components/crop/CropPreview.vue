@@ -86,18 +86,14 @@ export default {
       this.set_imgBox_rect();
 
       // console.log("2", this.widthI, this.heightI);
-      // console.log('calculate input dimension')
+      console.log('calculateInputDimensions called');
     },
 
     set_imgBox_rect() {
       const imgBox = this.$refs.imgBox;
       this.imgBox_rect = { w: imgBox.clientWidth * this.widthI / 100, h: imgBox.clientHeight * this.heightI / 100};
-      // console.log(imgBox.clientWidth, imgBox.clientHeight, this.widthI,
-      // this.heightI)
-    },
 
-    d_toString(x) {
-      return x + "%";
+      console.log('set_imgBox_rect called');
     },
 
     //calculate Crop emits sizing information
@@ -126,7 +122,8 @@ export default {
         w: (this.imgBox_rect.w * this.widthC) / 100,
         h: (this.imgBox_rect.h * this.heightC) / 100,
       };
-      // console.log("1", this.cropBox_rect);
+      
+      console.log("calculateCrop called");
     },
 
     update() {
@@ -140,6 +137,8 @@ export default {
     // reset?
     //check border emits location information
     checkBorder() {
+
+      console.log("checkborder called");
       this.c_position.x = Math.max(
         0,
         Math.min(this.c_position.x, this.imgBox_rect.w - this.cropBox_rect.w)
@@ -221,15 +220,15 @@ export default {
   computed: {
     imgBoxStyles() {
       return {
-        width: this.d_toString(this.widthI),
-        height: this.d_toString(this.heightI),
+        width: this.widthI + '%',
+        height: this.heightI + '%',
       };
     },
     cropBoxStyles() {
       return {
         // "aspect-ratio": this.CropSize,
-        width: this.d_toString(this.widthC),
-        height: this.d_toString(this.heightC),
+        width: this.widthC + '%',
+        height: this.heightC + '%',
 
         left: this.c_position.x + "px",
         top: this.c_position.y + "px",

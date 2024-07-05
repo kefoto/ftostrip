@@ -12,12 +12,26 @@ export default {
   name: "EditPictures",
 
   data() {
-    return {};
+    return {
+      h_invert_img: null,
+      v_invert_img: null,
+      vh_invert_img: null,
+    };
   },
-  created() {
-    this.checkProps();
+  mounted() {
+    // this.checkProps();
 
     this.debouncedConvert = debounce(this.convertEdit, 300);
+
+    this.createInvertImage(this.imageSource).then(
+      ({ h_inv_img, v_inv_img, vh_inv_img }) => {
+        this.h_invert_img = h_inv_img;
+        this.v_invert_img = v_inv_img;
+        this.vh_invert_img = vh_inv_img;
+
+        this.debouncedConvert();
+      }
+    );
   },
 
   beforeUnmount() {},
@@ -35,8 +49,67 @@ export default {
       );
     },
 
+    srcToImage(src) {
+      const img = new Image();
+      img.src = src;
+
+      return img;
+    },
+
+    createInvertImage(imageSrc) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.src = imageSrc;
+
+        image.onload = () => {
+          const h_Canvas = document.createElement("canvas");
+          const h_Ctx = h_Canvas.getContext("2d");
+
+          h_Canvas.width = image.width;
+          h_Canvas.height = image.height;
+
+          h_Ctx.translate(image.width, 0);
+          h_Ctx.scale(-1, 1);
+          h_Ctx.drawImage(image, 0, 0);
+          const h_inv_img = new Image();
+          h_inv_img.src = h_Canvas.toDataURL("image/jpeg");
+
+          const v_Canvas = document.createElement("canvas");
+          const v_Ctx = v_Canvas.getContext("2d");
+
+          v_Canvas.width = image.width;
+          v_Canvas.height = image.height;
+
+          v_Ctx.translate(0, image.height);
+          v_Ctx.scale(1, -1);
+          v_Ctx.drawImage(image, 0, 0);
+
+          const v_inv_img = new Image();
+          v_inv_img.src = v_Canvas.toDataURL("image/jpeg");
+
+          const vh_Canvas = document.createElement("canvas");
+          const vh_Ctx = vh_Canvas.getContext("2d");
+
+          vh_Canvas.width = image.width;
+          vh_Canvas.height = image.height;
+
+          vh_Ctx.translate(image.width, image.height);
+          vh_Ctx.scale(-1, -1);
+          vh_Ctx.drawImage(image, 0, 0);
+          const vh_inv_img = new Image();
+          vh_inv_img.src = vh_Canvas.toDataURL("image/jpeg");
+
+          // console.log(h_inv_img, v_inv_img, vh_inv_img);
+          resolve({ h_inv_img, v_inv_img, vh_inv_img });
+        };
+
+        image.onerror = reject;
+      });
+    },
+
     convertEdit() {
-      this.checkProps();
+      // this.checkProps();
+
       const image = new Image();
       image.src = this.imageSource;
 
@@ -52,9 +125,9 @@ export default {
       const dupX = this.duplicate.x;
       const dupY = this.duplicate.y;
 
-      var offsetX = this.offset.x;
-      var offsetY = this.offset.y;
-
+      const v_inv_img = this.v_invert_img;
+      const h_inv_img = this.h_invert_img;
+      const vh_inv_img = this.vh_invert_img;
 
       image.onload = function () {
         const imgWidth = image.width;
@@ -63,147 +136,71 @@ export default {
         canvas.width = imgWidth;
         canvas.height = imgHeight;
 
-        
-        // const colWidth = imgWidth / splitX;
-        // const rowHeight = imgHeight / splitY;
+        const colWidth = imgWidth / splitX;
+        const rowHeight = imgHeight / splitY;
 
-        const colWidth = imgWidth / dupX;
-        const rowHeight = imgHeight / dupY;
-        
+        // offsetX = (offsetX / 10) * colWidth;
+        // offsetY = (offsetY / 10) * rowHeight;
 
-        offsetX = offsetX / 10 * colWidth;
-        offsetY = offsetY / 10 * rowHeight;
-        
         // console.log(offsetX, offsetY);
-
-
         for (let i = 0; i < splitX; i++) {
           for (let j = 0; j < splitY; j++) {
-            // const sx = i * colWidth + offsetX;
-            // const sy = j * rowHeight + offsetY;
-            const sx = i * colWidth;
-            const sy = j * rowHeight;
             const dx = i * colWidth;
             const dy = j * rowHeight;
 
-            for (let di = 0; di < splitX; di++) {
-              for (let dj = 0; dj < splitY; dj++) {
-
-                const scaledWidth = colWidth / splitX;
-                const scaledHeight = rowHeight / splitY;
+            for (let di = 0; di < dupX; di++) {
+              for (let dj = 0; dj < dupY; dj++) {
+                const scaledWidth = colWidth / dupX;
+                const scaledHeight = rowHeight / dupY;
 
                 const destX = dx + di * scaledWidth;
                 const destY = dy + dj * scaledHeight;
 
-                ctx.save();
+                // let flipHorizontally = di % dupX >= dupX / 2;
+                // let flipVertically = dj % dupY >= dupY / 2;
 
-                let flipHorizontally = invertX && (di % 2 === 1);
-                let flipVertically = invertY && (dj % 2 === 1);
+                let flipHorizontally = invertX && di % dupX >= dupX / 2;
+                let flipVertically = invertY && dj % dupY >= dupY / 2;
 
-                // let flipHorizontally = (di % 2 === 1);
-                // let flipVertically = (dj % 2 === 1);
+                var temp;
 
-                
-
-                // if ((di % 2 === 1) && (dj % 2 === 1)){
-
-                // } else if (di % 2 === 1) {
-
-                // } else if (dj % 2 === 1) {
-
-                // } else {
-
-                // }
                 if (flipHorizontally && flipVertically) {
-                    ctx.translate(destX + scaledWidth, destY + scaledHeight);
-                    ctx.scale(-1, -1);
-                    ctx.drawImage(image, sx, sy, colWidth, rowHeight, 0, 0, scaledWidth, scaledHeight);
-
+                  temp = vh_inv_img;
                 } else if (flipHorizontally) {
-                    ctx.translate(destX + scaledWidth, 0); // Move origin to the right edge
-                    ctx.scale(-1, 1); // Flip horizontally
-
-                    ctx.drawImage(
-                        image,
-                        sx,
-                        sy,
-                        colWidth,
-                        rowHeight,
-                        0, 
-                        destY,
-                        scaledWidth,
-                        scaledHeight
-                    );
-                
+                  temp = h_inv_img;
                 } else if (flipVertically) {
-                    ctx.translate(0, destY + scaledHeight); // Move origin to the right edge
-                    ctx.scale(1, -1);
-
-                    ctx.drawImage(
-                        image,
-                        sx,
-                        sy,
-                        colWidth,
-                        rowHeight,
-                        destX, // Draw at the translated origin
-                        0,
-                        scaledWidth,
-                        scaledHeight
-                    );
-
-                   
+                  temp = v_inv_img;
                 } else {
-                    ctx.drawImage(
-                        image,
-                        sx,
-                        sy,
-                        colWidth,
-                        rowHeight,
-                        destX,
-                        destY,
-                        scaledWidth,
-                        scaledHeight
-                    );
-
-                
+                  temp = image;
                 }
-                // Restore the canvas state
-                ctx.restore();
 
+                ctx.drawImage(
+                  temp,
+                  dx,
+                  dy,
+                  colWidth,
+                  rowHeight,
+                  destX,
+                  destY,
+                  scaledWidth,
+                  scaledHeight
+                );
               }
             }
           }
         }
-        
         // Provide the result image
         eventBus.emit("UploadResultImage", canvas.toDataURL("image/jpeg"));
       };
     },
-
-    fillOffset(ctx, offsetX, offsetY, image, sx, sy, colWidth, rowHeight, destX, destY, scaledWidth, scaledHeight) {
-        if (offsetX > 0) {
-            ctx.drawImage(image, sx - colWidth, sy, colWidth, rowHeight, destX - scaledWidth, destY, scaledWidth, scaledHeight);
-        } else if (offsetX < 0) {
-            ctx.drawImage(image, sx + colWidth, sy, colWidth, rowHeight, destX + scaledWidth, destY, scaledWidth, scaledHeight);
-        }
-
-        if (offsetY > 0) {
-            ctx.drawImage(image, sx, sy - rowHeight, colWidth, rowHeight, destX, destY - scaledHeight, scaledWidth, scaledHeight);
-        } else if (offsetY < 0) {
-            ctx.drawImage(image, sx, sy + rowHeight, colWidth, rowHeight, destX, destY + scaledHeight, scaledWidth, scaledHeight);
-        }
-    },
   },
+
   props: {
     imageSource: {
       type: String,
       required: true,
     },
     split: {
-      type: Object,
-      required: true,
-    },
-    offset: {
       type: Object,
       required: true,
     },
@@ -218,8 +215,16 @@ export default {
   },
 
   watch: {
-    imageSource() {
-      this.debouncedConvert();
+    imageSource(newVal) {
+      this.createInvertImage(newVal).then(
+        ({ h_inv_img, v_inv_img, vh_inv_img }) => {
+          this.h_invert_img = h_inv_img;
+          this.v_invert_img = v_inv_img;
+          this.vh_invert_img = vh_inv_img;
+
+          this.debouncedConvert();
+        }
+      );
     },
     split() {
       this.debouncedConvert();
