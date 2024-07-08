@@ -1,30 +1,32 @@
 <template>
   <div id="menu" ref="menu">
-    <transition name="el-fade-in">
+    <el-collapse-transition>
       <div v-show="isInfoShow">
         <el-row>
           <el-col :span="18">
-            <el-text size="large">Sliced Mirror Effect Editor</el-text>
+            <el-text size="large" class="word"
+              >Sliced Mirror Effect Editor</el-text
+            >
           </el-col>
           <el-col :span="6">
-            <el-text size="small">by Ke Xu</el-text>
+            <el-text size="small" class="word">by Ke Xu</el-text>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24" class="text">
-            <el-text>Graphic Design is my passion </el-text>
+            <el-text class="word">Graphic Design is my passion </el-text>
           </el-col>
         </el-row>
       </div>
-    </transition>
+    </el-collapse-transition>
 
-    <el-row>
-      <div ref="buttons" style="display: flex; justify-content: space-between">
+    <el-row style="display: flex; justify-content: flex-end">
+      <div ref="buttons" style="display: flex; justify-content: flex-end">
         <el-button round size="small" ref="gitButton"> Git </el-button>
         <el-button circle size="small" @click="toggleInfo" ref="toggleButton">
           <el-icon><TopLeft /></el-icon>
         </el-button>
-        </div>
+      </div>
     </el-row>
   </div>
 </template>
@@ -33,14 +35,16 @@
 import { gsap } from "gsap";
 
 export default {
-  name: "InfoHeader",
+  name: "InfoFooter",
 
   data() {
     return {
       isInfoShow: false,
+
+      buttons_width: 75.3 + 10,
     };
   },
-  
+
   mounted() {
     // this.getButtonWidths();
   },
@@ -50,48 +54,69 @@ export default {
       // this.isInfoShow = !this.isInfoShow;
       const menu = this.$refs.menu;
 
-      const buttons_width = 75.3 + 10;
-      
+      // const buttons_width = 75.3 + 10;
+
       if (this.isInfoShow) {
         // Collapse
         // this.isInfoShow = false;
+        this.isInfoShow = false;
+        gsap.to(".word", {
+          opacity: 0,
+          ease: "power2.out",
+          duration: 0.2,
+        });
+
         gsap.to(menu, {
-          width: `${buttons_width}px`,
-          'min-width': `${buttons_width}px`,
-          duration: 0.3,
-          onComplete: () => {
-              this.isInfoShow = false;
-            },
+          width: `${this.buttons_width}px`,
+          "min-width": `${this.buttons_width}px`,
+          ease: "power2.out",
+          duration: 0.4,
+          // onComplete: () => {
+          //     this.isInfoShow = false;
+          //   },
         });
       } else {
         // Expand
+
+
         gsap.fromTo(
           menu,
-          { width: `${buttons_width}px`, 
-            'min-width': `${buttons_width}px`, 
-        },
+          { width: `${this.buttons_width}px`, "min-width": `${this.buttons_width}px` },
           {
             width: "30%",
-            'min-width': '400px',
-            duration: 0.3,
+            "min-width": "400px",
+            // ease: "power2.out",
+            duration: 0.4,
             onComplete: () => {
               this.isInfoShow = true;
             },
           }
         );
-        // });
+
+        gsap.fromTo(
+          ".word",
+          {
+            opacity: 0,
+          },
+          {
+            opacity: 1,
+            ease: "power2.out",
+            duration: 0.2,
+            delay: 0.4,
+          }
+        );
       }
     },
-
-    // getButtonWidths() {
-    //   // This will ensure the initial width is set correctly
-    //   this.$nextTick(() => {
-    //     const totalButtonWidth = this.$refs.gitButton.offsetWidth + this.$refs.toggleButton.offsetWidth + 10; // Added 10px for margin
-    //     this.$refs.menu.style.width = `${totalButtonWidth}px`;
-    //   });
-    // },
-
   },
+
+  computed: {
+    footerSizeStyle() {
+      return {
+        width: `${this.buttons_width}`,
+        "min-width": `${this.buttons_width}`,
+      }
+    }
+  }
 
   //   mounted: {},
 };
@@ -103,8 +128,8 @@ export default {
   right: 0;
   bottom: 0;
 
-  width: 30%;
-  min-width: 400px;
+  // width: 30%;
+  // min-width: 400px;
   backdrop-filter: blur(5px);
   background-color: rgba(215, 227, 208, 0.3);
   border-radius: 13px;
@@ -127,5 +152,9 @@ export default {
   text-align: center;
   margin: auto;
   padding: 0 5px;
+}
+
+.word {
+  opacity: 1;
 }
 </style>

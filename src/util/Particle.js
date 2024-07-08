@@ -1,4 +1,3 @@
-import { he } from "element-plus/es/locale";
 
 window.addEventListener("load", function () {
   const canvas = document.getElementById();
@@ -14,13 +13,19 @@ class Particle {
     this.effect = effect;
     this.x = Math.random() * this.effect.width;
     this.y = Math.random() * this.effect.height;
-    this.speed = 0;
+    // this.speed = 0;
     this.origin = {x: Math.floor(x), y: Math.floor(y)};
     this.color = color,
     this.vx = 0;
     this.vy = 0;
     this.size = this.effect.gap;
-    this.ease = 0.01;
+    this.dx = 0;
+    this.dy = 0;
+    this.distance = 0;
+    this.force = 0;
+    this.angle = 0;
+    this.ease = 0.015; //editable
+    this.friction = 0.92; //editable
   }
 
   draw(context) {
@@ -29,8 +34,26 @@ class Particle {
   }
 
   update() {
-    this.x += (this.origin.x - this.x) * this.ease;
-    this.x += (this.origin.y - this.y) * this.ease;
+    this.dx = this.effect.mouse.x - this.x;
+    this.dy = this.effect.mouse.y - this.y;
+    this.distance = this.dx * this.dx + this.dy + this.dy;
+    this.force = (-1) * this.effect.mouse.radius / this.distance;
+
+    if(this.distance < this.effect.mouse.radius) {
+      this.angle = Math.atan2(this.dy, this.dx);
+      this.vx += this.force * Math.cos(this.angle);
+      this.vy += this.force * Math.sin(this.angle);
+
+    }
+
+    this.x += (this.vx *= this.friction) + (this.origin.x - this.x) * this.ease;
+    this.y += (this.vy *= this.friction) + (this.origin.y - this.y) * this.ease;
+  }
+
+  warp() {
+    this.x = Math.random() * this.effect.width;
+    this.y = Math.random() * this.effect.height;
+    this.ease = 0.05;
   }
 }
 
@@ -45,7 +68,19 @@ class Effect {
         this.x = this.centerX - this.image.width * 0.5;
         this.y = this.centerY - this.image.height * 0.5;
         
-        this.gap = 3;
+        this.gap = 3;  //editable
+
+        this.mouse = {
+          radius: 2500,  //editable
+          x: undefined,
+          y: undefined,
+        }
+
+        window.addEventListener('mousemove', (e) => {
+          this.mouse.x = e.x;
+          this.mouse.y = e.y;
+          console.log(this.mouse.x, this.mouse.y)
+        });
     }
 
     init(context) {
@@ -73,6 +108,9 @@ class Effect {
     }
     update() {
         this.particlesArray.forEach(particle => particle.update());
+    }
+    warp() {
+      this.particlesArray.forEach(particle => particle.warp());
     }
 
 }

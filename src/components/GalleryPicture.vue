@@ -4,6 +4,8 @@
       <div class="mask" ref="mask" :style="maskStyles"></div>
     </div>
     <!-- TODO: the sizing for those two images does not match -->
+  <!-- TODO: bug, the croppreview does not match the sizing, need to match the crop position when window change size -->
+
     <img
       :src="imageSource"
       @load="updateMask_C_Size"
@@ -27,7 +29,6 @@
 <script>
 import eventBus from "../util/eventBus";
 import { ElNotification } from "element-plus";
-// import Cropper from "cropperjs";
 // import {imageSource} from "./TogglesInput.vue"
 export default {
   name: "GalleryPicture",
@@ -83,7 +84,7 @@ export default {
   data() {
     return {
       isPreviewMaskShow: false,
-      isResultShow: true,
+      isResultShow: false,
       isImgShow: true,
       isImageLoad: false,
       

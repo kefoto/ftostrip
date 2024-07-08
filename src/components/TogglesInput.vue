@@ -1,5 +1,5 @@
 <template>
-  <!-- TODO: bug, the croppreview does not match the sizing -->
+  <!-- TODO: bug, the croppreview does not match the sizing, need to match the crop position when window change size -->
   <div>
     <div id="menu">
       <div id="header" class="container" style="margin-bottom: 0">
@@ -449,8 +449,6 @@ export default {
       }
     },
 
-    // TODO: this styling is a bit weird
-
     buttonActivateStyle() {
       return {
         "background-color": this.isSubTableExpanded ? "black" : "white",
@@ -617,7 +615,6 @@ export default {
     isViewModel(newVal) {
       this.emitViewModel(newVal);
     },
-
     //TODO: this might be wrong
     isSubTableExpanded() {
       if (this.isResultShow == true){
