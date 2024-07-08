@@ -1,5 +1,9 @@
 # ftostrip
 
+This stands for a lot of photo rows and column strips to achieve broken mirror effects. 
+
+By Ke Xu.
+
 ## Need to do
 
 - check user not going to crop the image again and again at one pixel
