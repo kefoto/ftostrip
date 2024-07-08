@@ -587,10 +587,8 @@ export default {
       eventBus.emit("ViewModelVisibility", x);
     },    
 
-    resetInputs(isDynamic) {
-      if (isDynamic) {
+    resetInputs() {
         this.isViewModel = false; // Reset radio group to default value
-      }
         this.isResultShow = true; // Reset result show switch
     },
 
@@ -603,8 +601,8 @@ export default {
     },
   },
   watch: {
-    isDynamic(newVal) {
-      this.resetInputs(newVal);
+    isDynamic() {
+      this.resetInputs();
     },
 
     isResultShow(newVal) {
