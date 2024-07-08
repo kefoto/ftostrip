@@ -191,6 +191,8 @@ export default {
         }
         // Provide the result image
         eventBus.emit("UploadResultImage", canvas.toDataURL("image/jpeg"));
+
+        eventBus.emit("ResultVisibility", true);
       };
     },
   },

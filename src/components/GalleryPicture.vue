@@ -9,6 +9,7 @@
       @load="updateMask_C_Size"
       data="Current image"
       ref="image"
+      :style="imgStyles"
     />
 
     <img
@@ -30,7 +31,7 @@ import { ElNotification } from "element-plus";
 // import {imageSource} from "./TogglesInput.vue"
 export default {
   name: "GalleryPicture",
-
+// TODO: reset the input, hide all of the imgs first, load, and then show the img
   created() {
     // this.updateImageSource(this.imageSource);
 
@@ -46,6 +47,7 @@ export default {
     eventBus.on("UploadResultImage", this.updateResultSource);
 
     eventBus.on("ResultVisibility", this.updateResultShow);
+    eventBus.on("ImgVisibility", this.updateImgShow);
     // eventBus.on("ViewModelVisibility", x);
 
     eventBus.on("DownloadConfirmed", this.downloadResultImage);
@@ -68,6 +70,7 @@ export default {
     eventBus.off("UploadResultImage", this.updateResultSource);
 
     eventBus.off("ResultVisibility", this.updateResultShow);
+    eventBus.off("ImgVisibility", this.updateImgShow);
     // eventBus.off("ViewModelVisibility", x);
 
     eventBus.off("DownloadConfirmed", this.downloadResultImage);
@@ -81,7 +84,9 @@ export default {
     return {
       isPreviewMaskShow: false,
       isResultShow: true,
+      isImgShow: true,
       isImageLoad: false,
+      
 
       imageSource: require("@/assets/2.jpg"),
       resultSource: null,
@@ -107,11 +112,16 @@ export default {
       this.isResultShow = x;
     },
 
+    updateImgShow(x) {
+      this.isImgShow = x;
+    },
+
     updateImageSource(newSource) {
       console.log("updateImageSource Called");
 
       // console.log(this.imageSource);
       this.imageSource = newSource;
+      this.updateImgShow(true);
 
       // this.$nextTick(() => {
       //   this.updateMask_C_Size();
@@ -245,6 +255,13 @@ export default {
         opacity: this.isPreviewMaskShow ? 1 : 0,
         transition: "opacity 0.3s ease", // Adjust the transition duration and easing as needed
       };
+    },
+
+    imgStyles() {
+      return {
+        opacity: this.isImgShow ? 1 : 0,
+        transition: "opacity 0.3s ease",
+      }
     },
 
     resultImgStyles() {

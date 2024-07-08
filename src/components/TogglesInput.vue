@@ -484,12 +484,16 @@ export default {
     previewFiles(event) {
       console.log("previewFiles Called");
 
+
       const file = event.target.files[0];
       if (file) {
         this.file = file;
-        if (file.type.startsWith("image/")) {
+        console.log(file.type);
+        if (file.type.startsWith("image/jpeg") || file.type.startsWith("image/png")) {
           this.fileName = this.limitNameLength(file.name, 8);
 
+          this.emitImgShow(false);
+          this.emitResultShow(false);      
           // console.log('FileReader onload event triggered');
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -499,6 +503,8 @@ export default {
           };
 
           reader.readAsDataURL(file);
+
+          // this.emitResultShow(true);
         } else {
           // this.imageSource = "";
           ElNotification({
@@ -574,6 +580,11 @@ export default {
     emitResultShow(x) {
       eventBus.emit("ResultVisibility", x);
     },
+
+    emitImgShow(x) {
+      eventBus.emit("ImgVisibility", x);
+    },
+
     emitViewModel(x) {
       eventBus.emit("ViewModelVisibility", x);
     },    
