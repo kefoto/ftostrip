@@ -1,3 +1,7 @@
+<!-- This file provides canvas content for editing the original pictures, 
+take the original image and parameter datas from the parent TogglesInput,
+and outputs to GalleryPicture display through emitter and image data -->
+
 <template>
   <div>
     <canvas ref="canvas"></canvas>

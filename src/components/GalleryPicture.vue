@@ -21,7 +21,11 @@
       :style="resultImgStyles"
     />
 
-    <canvas ref="canvas" style="display: none"></canvas>
+    <canvas id="for-editing" ref="canvas" style="display: none"> </canvas>
+
+    <div v-if="isViewModelShow">
+      <imgToParticle id="for-vm" :src="imageSource" :dem="imageNaturalSize"></imgToParticle>
+    </div>
     <!-- <img :src="imageSource" @load="imageLoaded" data="Current image" ref="image"/> -->
   </div>
 </template>
@@ -29,12 +33,19 @@
 <script>
 import eventBus from "../util/eventBus";
 import { ElNotification } from "element-plus";
+
+import imgToParticle from "./vm/imgToParticle.vue";
+
 // import {imageSource} from "./TogglesInput.vue"
 export default {
   name: "GalleryPicture",
+
+  components: {
+    imgToParticle,
+  },
+
 // TODO: reset the input, hide all of the imgs first, load, and then show the img
   created() {
-    // this.updateImageSource(this.imageSource);
 
     eventBus.on("imageUploaded", this.updateImageSource);
     eventBus.on("CropConfirmed", this.initiateCropping);
@@ -49,13 +60,12 @@ export default {
 
     eventBus.on("ResultVisibility", this.updateResultShow);
     eventBus.on("ImgVisibility", this.updateImgShow);
-    // eventBus.on("ViewModelVisibility", x);
+    eventBus.on("ViewModelVisibility", this.updateVM1Show);
 
     eventBus.on("DownloadConfirmed", this.downloadResultImage);
 
-    // this.isResultShow = true;
-
     window.addEventListener("resize", this.updateMask_C_Size);
+
   },
 
   beforeUnmount() {
@@ -72,11 +82,12 @@ export default {
 
     eventBus.off("ResultVisibility", this.updateResultShow);
     eventBus.off("ImgVisibility", this.updateImgShow);
-    // eventBus.off("ViewModelVisibility", x);
+    eventBus.off("ViewModelVisibility", this.updateVM1Show);
 
     eventBus.off("DownloadConfirmed", this.downloadResultImage);
 
     window.removeEventListener("resize", this.updateMask_C_Size);
+
   },
 
   props: {},
@@ -86,12 +97,15 @@ export default {
       isPreviewMaskShow: false,
       isResultShow: false,
       isImgShow: true,
+      isViewModelShow: false,
+
       isImageLoad: false,
-      
+
 
       imageSource: require("@/assets/2.jpg"),
       resultSource: null,
 
+      imageNaturalSize: {w: 0, h: 0},
       helper_calc_pos: { w: 100, h: 100 },
       mask_pos: { x: 0, y: 0 },
       mask_dem: { w: 100, h: 100 },
@@ -117,6 +131,10 @@ export default {
       this.isImgShow = x;
     },
 
+    updateVM1Show(x) {
+      this.isViewModelShow = x;
+    },
+
     updateImageSource(newSource) {
       console.log("updateImageSource Called");
 
@@ -140,13 +158,11 @@ export default {
       const mask_c = this.$refs.mask_c;
       // const mask = this.$refs.mask;
       if (image && mask_c) {
-        mask_c.style.width = `${image.clientWidth}px`;
-        mask_c.style.height = `${image.clientHeight}px`;
-        // mask.style.width = `${image.clientWidth}px`;
-        // mask.style.height = `${image.clientHeight}px`;
-
-        // mask.style.top = `${image.offsetTop}px`;
-        // mask.style.left = `${image.offsetLeft}px`;
+        console.log(image.clientWidth, image.clientHeight);
+        this.imageNaturalSize.w = image.clientWidth;
+        this.imageNaturalSize.h = image.clientHeight;
+        mask_c.style.width = `${this.imageNaturalSize.w}px`;
+        mask_c.style.height = `${this.imageNaturalSize.h}px`;
       }
     },
 
@@ -239,6 +255,7 @@ export default {
       link.click();
       document.body.removeChild(link);
     },
+
   },
 
   computed: {

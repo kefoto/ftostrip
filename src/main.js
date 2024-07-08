@@ -11,11 +11,19 @@ import './assets/styles/fonts.css';
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faGithub, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
 
+/* add icons to the library */
+library.add(faGithub);
+library.add(faLinkedinIn);
 
 const emitter = mitt()
 
 const app = createApp(App)
+
+app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.use(ElementPlus);
 

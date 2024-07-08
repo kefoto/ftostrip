@@ -310,7 +310,7 @@
                 inline-prompt
 
                 active-text="VM-1"
-                inactive-text="VM-2"
+                inactive-text="None"
 
               />
             </el-col>
@@ -406,9 +406,9 @@ export default {
       crop_boost: 10,
       inverted: false,
 
-      isDynamic: true,
+      isDynamic: false,
       isResultShow: true,
-      isViewModel: true,
+      isViewModel: false,
       // radio2: 0,
       isExportJPG: true,
 
@@ -589,10 +589,9 @@ export default {
 
     resetInputs(isDynamic) {
       if (isDynamic) {
-        this.isViewModel = true; // Reset radio group to default value
-      } else {
-        this.isResultShow = true; // Reset result show switch
+        this.isViewModel = false; // Reset radio group to default value
       }
+        this.isResultShow = true; // Reset result show switch
     },
 
     limitNameLength(name, limit) {
