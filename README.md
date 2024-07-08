@@ -4,6 +4,10 @@ This stands for a lot of photo rows and column strips to achieve broken mirror e
 
 By Ke Xu.
 
+
+learning! 
+![](https://github.com/kefoto/ftostrip/blob/main/giphy.gif)
+
 ## Need to do
 
 - check user not going to crop the image again and again at one pixel
