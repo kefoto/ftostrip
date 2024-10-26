@@ -1,4 +1,4 @@
-# ftostrip
+# Photo in strips and grids!
 
 This stands for a lot of photo rows and column strips to achieve broken mirror effects. 
 
